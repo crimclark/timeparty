@@ -15,7 +15,7 @@ local pages = { time, rate, feedback, mix }
 local visible_seq = 1
 
 function init()
---  start_clock()
+  start_clock()
   TapeDelay.init()
   -- init sets grid key handler and redraw
   Sequencers.time:init()
@@ -32,33 +32,39 @@ end
 
 function enc(num, delta)
   local newIndex = visible_seq + util.clamp(delta, -1, 1)
-  visible_seq = util.clamp(newIndex, 1, 2)
+  visible_seq = util.clamp(newIndex, 1, 3)
+
+--  delta is either -1 or 1, use this to update_visible
 
   if (visible_seq == 2) then
     Sequencers.rate:init()
     Sequencers.update_visible('time', 'rate')
-    Sequencers.rate:count(clk)
   end
 
   if (visible_seq == 1) then
     Sequencers.time:init()
     Sequencers.update_visible('rate', 'time')
-    Sequencers.time:count(clk)
+  end
+
+  if (visible_seq == 3) then
+    Sequencers.feedback:init()
+    Sequencers.update_visible('time', 'feedback')
   end
 
   redraw()
 end
 --
---function start_clock()
---  local clk_midi = midi.connect()
---  clk_midi.event = clk.process_midi
---  clk:add_clock_params()
---  -- todo: find better way to do this
---  Sequencers.time:count(clk)
---  clk.on_select_internal = function() clk:start() end
---  clk.on_select_external = function() print('external') end
---  clk:start()
---end
+
+-- todo: need new way of defining bpm so can get rid of this
+function start_clock()
+  local clk_midi = midi.connect()
+  clk_midi.event = clk.process_midi
+  clk:add_clock_params()
+  Sequencers.time:count(clk)
+  clk.on_select_internal = function() clk:start() end
+  clk.on_select_external = function() print('external') end
+  clk:start()
+end
 
 function new_page(num)
   local page = pages[num]
