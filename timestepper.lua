@@ -15,11 +15,10 @@ local pages = { time, rate, feedback, mix }
 local visible_seq = 1
 
 function init()
-  start_clock()
+--  start_clock()
   TapeDelay.init()
   -- init sets grid key handler and redraw
   Sequencers.time:init()
-  Sequencers.time.visible = true
   redraw()
 end
 
@@ -49,17 +48,17 @@ function enc(num, delta)
 
   redraw()
 end
-
-function start_clock()
-  local clk_midi = midi.connect()
-  clk_midi.event = clk.process_midi
-  clk:add_clock_params()
-  -- todo: find better way to do this
-  Sequencers.time:count(clk)
-  clk.on_select_internal = function() clk:start() end
-  clk.on_select_external = function() print('external') end
-  clk:start()
-end
+--
+--function start_clock()
+--  local clk_midi = midi.connect()
+--  clk_midi.event = clk.process_midi
+--  clk:add_clock_params()
+--  -- todo: find better way to do this
+--  Sequencers.time:count(clk)
+--  clk.on_select_internal = function() clk:start() end
+--  clk.on_select_external = function() print('external') end
+--  clk:start()
+--end
 
 function new_page(num)
   local page = pages[num]

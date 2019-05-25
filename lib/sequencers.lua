@@ -35,7 +35,7 @@ Sequencers.time = FXSequencer.new{
   set_fx = function(value)
     softcut.loop_end(voice, calculate_delay_time(params:get('bpm'), value) + 1)
   end,
-  id = 'time',
+  visible = true,
 }
 
 Sequencers.rate = FXSequencer.new{
@@ -44,7 +44,6 @@ Sequencers.rate = FXSequencer.new{
   set_fx = function(value)
     softcut.rate(voice, calculate_delay_time(params:get('bpm'), value))
   end,
-  id = 'rate'
 }
 
 Sequencers.feedback = FXSequencer.new{
@@ -67,8 +66,5 @@ Sequencers.update_visible = function(prev, new)
   Sequencers[prev].visible = false
   Sequencers[new].visible = true
 end
---Sequencers.update_visible = function(index)
---  Sequencers.visible = index;
---end
 
 return Sequencers
