@@ -1,56 +1,45 @@
 local clk = require 'beatclock'.new()
 
-function unrequire(name)
-  package.loaded[name] = nil
-  _G[name] = nil
-end
-unrequire('stepdad/lib/stepdad_softcut')
-unrequire('stepdad/lib/sequencers')
+local TapeDelay = include('stepdad/lib/stepdad_softcut')
+--local Sequencers = require 'stepdad/lib/sequencers'
+local Pages = include('stepdad/lib/Pages')
 
-local TapeDelay = require 'stepdad/lib/stepdad_softcut'
-local Sequencers = require 'stepdad/lib/sequencers'
-
-local pages = { time, rate, feedback, mix }
-
-local visible_seq = 1
+local visibleSeq = 1
 
 function init()
   start_clock()
   TapeDelay.init()
   -- init sets grid key handler and redraw
-  Sequencers.time:init()
+--  Sequencers[visibleSeq]:redraw()
+--  Sequencers[visibleSeq]:init()
+
+  Pages:init()
   redraw()
 end
 
 function redraw()
+  local activeIndex = Pages:active_index()
   screen.clear()
-  screen.move(0, 10)
+  screen.move(6, 55)
+  screen.font_size(70)
+  screen.font_face(1)
   screen.level(15)
-  screen.text(visible_seq)
+  screen.text(activeIndex)
+  screen.font_face(9)
+  screen.font_size(11)
+  screen.move(50, 10)
+  screen.text(Pages[activeIndex].title)
   screen.update()
 end
 
 function enc(num, delta)
-  local newIndex = visible_seq + util.clamp(delta, -1, 1)
-  visible_seq = util.clamp(newIndex, 1, 3)
+--  local newIndex = visibleSeq + util.clamp(delta, -1, 1)
+--  visibleSeq = util.clamp(newIndex, 1, 4)
+--  Sequencers[visibleSeq]:init()
+--  Sequencers.update_visible(visibleSeq, delta)
 
---  delta is either -1 or 1, use this to update_visible
-
-  if (visible_seq == 2) then
-    Sequencers.rate:init()
-    Sequencers.update_visible('time', 'rate')
-  end
-
-  if (visible_seq == 1) then
-    Sequencers.time:init()
-    Sequencers.update_visible('rate', 'time')
-  end
-
-  if (visible_seq == 3) then
-    Sequencers.feedback:init()
-    Sequencers.update_visible('time', 'feedback')
-  end
-
+  local newIndex = Pages:active_index() + util.clamp(delta, -1, 1)
+  Pages:new_page(newIndex)
   redraw()
 end
 --
@@ -60,15 +49,13 @@ function start_clock()
   local clk_midi = midi.connect()
   clk_midi.event = clk.process_midi
   clk:add_clock_params()
-  Sequencers.time:count(clk)
   clk.on_select_internal = function() clk:start() end
   clk.on_select_external = function() print('external') end
-  clk:start()
 end
 
-function new_page(num)
-  local page = pages[num]
-  page[seq]:count(clk)
-  page[seq]:init()
-end
+--function new_page(num)
+--  local page = pages[num]
+--  page[seq]:count(clk)
+--  page[seq]:init()
+--end
 

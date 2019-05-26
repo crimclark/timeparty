@@ -11,7 +11,7 @@ local voice = 1
 local delayTimes = {0.25, 0.333, 0.375, 0.5, 0.667, 0.75, 1, 1.333, 1.5, 2}
 
 local equalDivisions = {}
-for i = 1, GRID.rows do
+for i = GRID.rows, 1, -1 do
   table.insert(equalDivisions, i / GRID.rows)
 end
 
@@ -27,9 +27,7 @@ function reverse_table(tbl)
   return reversed
 end
 
-local Sequencers = {}
-
-Sequencers.time = FXSequencer.new{
+local timeSequencer = FXSequencer.new{
   grid = GRID,
   modVals = delayTimes,
   set_fx = function(value)
@@ -38,7 +36,7 @@ Sequencers.time = FXSequencer.new{
   visible = true,
 }
 
-Sequencers.rate = FXSequencer.new{
+local rateSequencer = FXSequencer.new{
   grid = GRID,
   modVals = reverse_table(delayTimes),
   set_fx = function(value)
@@ -46,7 +44,7 @@ Sequencers.rate = FXSequencer.new{
   end,
 }
 
-Sequencers.feedback = FXSequencer.new{
+local feedbackSequencer = FXSequencer.new{
   grid = GRID,
   modVals = equalDivisions,
   set_fx = function(value)
@@ -54,7 +52,7 @@ Sequencers.feedback = FXSequencer.new{
   end
 }
 
-Sequencers.mix = FXSequencer.new{
+local mixSequencer = FXSequencer.new{
   grid = GRID,
   modVals = equalDivisions,
   set_fx = function(value)
@@ -62,9 +60,28 @@ Sequencers.mix = FXSequencer.new{
   end
 }
 
-Sequencers.update_visible = function(prev, new)
-  Sequencers[prev].visible = false
-  Sequencers[new].visible = true
-end
+--local Sequencers = {
+--  timeSequencer,
+--  rateSequencer,
+--  feedbackSequencer,
+--  mixSequencer
+--}
+--
+--Sequencers.update_visible = function(index, delta)
+--  local hideIndex = util.clamp(index - delta, 1, #Sequencers)
+--  Sequencers[hideIndex].visible = false
+--  Sequencers[index].visible = true
+--  Sequencers[index]:redraw()
+--end
+
+local Sequencers = {
+  time = timeSequencer,
+  rate = rateSequencer,
+  feedback = feedbackSequencer,
+  mix = mixSequencer,
+}
+
+
+Sequencers.visible = timeSequencer
 
 return Sequencers
