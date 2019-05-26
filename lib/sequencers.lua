@@ -1,10 +1,4 @@
-function unrequire(name)
-  package.loaded[name] = nil
-  _G[name] = nil
-end
-unrequire('stepdad/lib/FXSequencer')
-
-local FXSequencer = require 'stepdad/lib/FXSequencer'
+local FXSequencer = include('stepdad/lib/FXSequencer')
 local GRID = grid.connect()
 local voice = 1
 
@@ -60,27 +54,12 @@ local mixSequencer = FXSequencer.new{
   end
 }
 
---local Sequencers = {
---  timeSequencer,
---  rateSequencer,
---  feedbackSequencer,
---  mixSequencer
---}
---
---Sequencers.update_visible = function(index, delta)
---  local hideIndex = util.clamp(index - delta, 1, #Sequencers)
---  Sequencers[hideIndex].visible = false
---  Sequencers[index].visible = true
---  Sequencers[index]:redraw()
---end
-
 local Sequencers = {
   time = timeSequencer,
   rate = rateSequencer,
   feedback = feedbackSequencer,
   mix = mixSequencer,
 }
-
 
 Sequencers.visible = timeSequencer
 

@@ -38,6 +38,7 @@ function Pages:new_page(index)
   self.active = self[newIndex]
   self.active.sequencer.visible = true
   self.active.sequencer:init()
+  self:redraw()
 end
 
 local index = {}
@@ -55,6 +56,23 @@ end
 function Pages:init()
   self.active.sequencer:redraw()
   self.active.sequencer:init()
+--  self:redraw()
+end
+
+--todo: make instance method on page
+function Pages:redraw()
+  local activeIndex = self:active_index()
+  screen.clear()
+  screen.move(6, 55)
+  screen.font_size(70)
+  screen.font_face(1)
+  screen.level(15)
+  screen.text(activeIndex)
+  screen.font_face(9)
+  screen.font_size(11)
+  screen.move(50, 10)
+  screen.text(self[activeIndex].title)
+  screen.update()
 end
 
 return Pages
