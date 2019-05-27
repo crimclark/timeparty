@@ -1,9 +1,27 @@
 local Sequencers = include('stepdad/lib/sequencers')
 
+-- todo: this whole file is gross
+
+-- todo: not DRY uses same values as delay times
+local timeDivs = {0.1875, 0.25, 0.333, 0.375, 0.5, 0.667, 0.75, 1}
+timeDivs.index = #timeDivs
+
+function update_rate(Pages, delta)
+  timeDivs.index = util.clamp(timeDivs.index + delta, 1, 8)
+  Pages.active.sequencer:update_rate(timeDivs[timeDivs.index])
+end
+
+function change_length(Pages, delta)
+  Pages.active.sequencer:set_length_offset(delta)
+end
+
+
 function create_page(options)
   local page = {
     title = options.title,
     sequencer = options.sequencer,
+    params = { change_length, update_rate },
+    selectedParam = 1,
 --    params = options.params or {}
   }
   return page
@@ -55,12 +73,25 @@ end
 function Pages:init()
   self.active.sequencer:redraw()
   self.active.sequencer:init()
---  self:redraw()
 end
 
---todo: make instance method on page
+-- todo: methods below should all be instance methods on page, not Pages
+function Pages:update_selected_param()
+  local activeIndex = self:active_index()
+  local page = self[activeIndex]
+  page.selectedParam = page.selectedParam % #page.params + 1
+end
+
+function Pages:update_param(delta)
+  local activeIndex = self:active_index()
+  local page = self[activeIndex]
+  page.params[page.selectedParam](self, delta)
+end
+
 function Pages:redraw()
   local activeIndex = self:active_index()
+  local page = self[activeIndex]
+
   screen.clear()
   screen.move(6, 55)
   screen.font_size(70)
@@ -70,7 +101,33 @@ function Pages:redraw()
   screen.font_face(9)
   screen.font_size(11)
   screen.move(50, 10)
-  screen.text(self[activeIndex].title)
+  screen.text(page.title)
+
+  screen.font_size(10)
+  screen.font_face(4)
+  screen.level(9)
+  screen.move(50, 30)
+
+  --todo: ewww
+  if page.selectedParam == 1 then
+    screen.level(15)
+  end
+
+  screen.text('LENGTH: ')
+  screen.move(95, 30)
+  screen.text(page.sequencer:length())
+
+  screen.level(9)
+
+  if page.selectedParam == 2 then
+    screen.level(15)
+  end
+
+  screen.move(50, 45)
+  screen.text('DIV: ')
+  screen.move(95, 45)
+  screen.text(page.sequencer.rate)
+  screen.level(9)
   screen.update()
 end
 

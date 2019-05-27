@@ -42,28 +42,28 @@ function sc.init()
     params:add_separator()
 
     -- todo remove these? or allow manual mode (turn off sequencers)?
-    params:add{
-        id = "delay",
-        name = "delay",
-        type = "control",
-        controlspec = controlspec.new(0,1,'lin',0,1,""),
-        action = function(x) softcut.level(1,x) end
-    }
-    params:add{
-        id = "delay_rate",
-        name = "delay rate",
-        type = "control",
-        controlspec = controlspec.new(0.125,16,'lin',0,1,""),
-        action = function(x) softcut.rate(1,x)
-        end
-    }
-    params:add{
-        id = "delay_feedback",
-        name = "delay feedback",
-        type = "control",
-        controlspec = controlspec.new(0,1.0,'lin',0,0.75,""),
-        action = function(x) softcut.pre_level(1,x) end
-    }
+--    params:add{
+--        id = "delay",
+--        name = "delay",
+--        type = "control",
+--        controlspec = controlspec.new(0,1,'lin',0,1,""),
+--        action = function(x) softcut.level(1,x) end
+--    }
+--    params:add{
+--        id = "delay_rate",
+--        name = "delay rate",
+--        type = "control",
+--        controlspec = controlspec.new(0.125,16,'lin',0,1,""),
+--        action = function(x) softcut.rate(1,x)
+--        end
+--    }
+--    params:add{
+--        id = "delay_feedback",
+--        name = "delay feedback",
+--        type = "control",
+--        controlspec = controlspec.new(0,1.0,'lin',0,0.75,""),
+--        action = function(x) softcut.pre_level(1,x) end
+--    }
 end
 
 return sc
