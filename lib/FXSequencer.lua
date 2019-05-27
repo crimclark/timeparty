@@ -17,7 +17,8 @@ function FXSequencer.new(options)
   setmetatable(seq, {__index = FXSequencer})
   seq:init_steps()
   seq.metro.event = seq:count()
-  seq.metro:start(0.5)
+  seq:update_tempo(params:get('bpm'))
+  seq.metro:start()
   return seq
 end
 

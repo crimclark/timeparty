@@ -1,5 +1,3 @@
-local clk = require 'beatclock'.new()
-
 local TapeDelay = include('stepdad/lib/stepdad_softcut')
 local Pages = include('stepdad/lib/Pages')
 
