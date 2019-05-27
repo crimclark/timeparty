@@ -68,17 +68,13 @@ function FXSequencer:redraw()
     -- count down from bottom row 8 to current height
     for j = self.grid.rows, y, -1 do
 
-      if visible then self.grid:led(i, j, buttonLevels.DIM) end
+      if visible then self.grid:led(i, j, buttonLevels.MEDIUM) end
 
       if i == self.positionX then
+        self.currentVal = self.modVals[y]
+        self.set_fx(self.currentVal)
 
-        if self.currentVal ~= self.modVals[y] then
-          self.currentVal = self.modVals[y]
-          self.set_fx(self.currentVal)
-          print(self.currentVal)
-        end
-
-        if visible then self.grid:led(i, y, buttonLevels.BRIGHT) end
+        if visible then self.grid:led(i, j, buttonLevels.BRIGHT) end
       end
     end
   end

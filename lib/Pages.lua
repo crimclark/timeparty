@@ -15,14 +15,12 @@ function change_length(Pages, delta)
   Pages.active.sequencer:set_length_offset(delta)
 end
 
-
 function create_page(options)
   local page = {
     title = options.title,
     sequencer = options.sequencer,
     params = { change_length, update_rate },
     selectedParam = 1,
---    params = options.params or {}
   }
   return page
 end

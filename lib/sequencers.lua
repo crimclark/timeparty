@@ -1,13 +1,9 @@
 local FXSequencer = include('stepdad/lib/FXSequencer')
+
 local GRID = grid.connect()
+local modVals = include('stepdad/lib/ModVals').new(GRID)
+
 local voice = 1
-
-local delayTimes = {0.1875, 0.25, 0.333, 0.375, 0.5, 0.667, 0.75, 1, 1.333, 1.5, 2}
-
-local equalDivisions = {}
-for i = GRID.rows, 1, -1 do
-  table.insert(equalDivisions, i / GRID.rows)
-end
 
 -- todo: set in function
 params:add_number('bpm', 'bpm', 40, 240, 120)
@@ -17,17 +13,13 @@ function calculate_delay_time(bpm, beatDivision)
   return (60 / bpm) * beatDivision
 end
 
-function reverse_table(tbl)
-  local reversed = {}
-  for i = #tbl, 1, -1 do
-    table.insert(reversed, tbl[i])
-  end
-  return reversed
+function calculate_rate(bpm, beatDivision)
+  return (bpm / 60) * beatDivision
 end
 
 local timeSequencer = FXSequencer.new{
   grid = GRID,
-  modVals = delayTimes,
+  modVals = modVals.beatDivisions,
   set_fx = function(value)
     softcut.loop_end(voice, calculate_delay_time(params:get('bpm'), value) + 1)
   end,
@@ -36,15 +28,15 @@ local timeSequencer = FXSequencer.new{
 
 local rateSequencer = FXSequencer.new{
   grid = GRID,
-  modVals = reverse_table(delayTimes),
+  modVals = modVals.beatDivisionsReversed,
   set_fx = function(value)
-    softcut.rate(voice, calculate_delay_time(params:get('bpm'), value))
+    softcut.rate(voice, calculate_rate(params:get('bpm'), value))
   end,
 }
 
 local feedbackSequencer = FXSequencer.new{
   grid = GRID,
-  modVals = equalDivisions,
+  modVals = modVals.equalDivisions,
   set_fx = function(value)
     softcut.pre_level(voice, value)
   end,
@@ -52,7 +44,7 @@ local feedbackSequencer = FXSequencer.new{
 
 local mixSequencer = FXSequencer.new{
   grid = GRID,
-  modVals = equalDivisions,
+  modVals = modVals.equalDivisions,
   set_fx = function(value)
     audio.level_monitor(value)
   end,
