@@ -9,6 +9,10 @@ for i = GRID.rows, 1, -1 do
   table.insert(equalDivisions, i / GRID.rows)
 end
 
+-- todo: set in function
+params:add_number('bpm', 'bpm', 40, 240, 60)
+params:set_action('bpm', function() update_tempo() end)
+
 function calculate_delay_time(bpm, beatDivision)
   return (60 / bpm) * beatDivision
 end
@@ -62,5 +66,10 @@ local Sequencers = {
 }
 
 Sequencers.visible = timeSequencer
+function update_tempo()
+  for _, v in pairs(Sequencers) do
+    v:update_tempo(params:get('bpm'))
+  end
+end
 
 return Sequencers

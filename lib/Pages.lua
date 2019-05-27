@@ -1,4 +1,3 @@
--- todo: change indexes on Sequencers
 local Sequencers = include('stepdad/lib/sequencers')
 
 function create_page(options)

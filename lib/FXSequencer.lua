@@ -30,6 +30,10 @@ function FXSequencer:init()
   end
 end
 
+function FXSequencer:update_tempo(bpm)
+  self.metro.time = 60 / bpm
+end
+
 function FXSequencer:count()
   return function()
     self.positionX = (self.positionX % self.grid.cols) + 1
