@@ -1,5 +1,9 @@
-local TapeDelay = include('stepdad/lib/stepdad_softcut')
-local Pages = include('stepdad/lib/Pages')
+-- TIME PARTY
+--
+-- It's Party Time!
+
+local TapeDelay = include('timeparty/lib/TapeDelay')
+local Pages = include('timeparty/lib/Pages')
 
 function init()
   TapeDelay.init()

@@ -1,4 +1,4 @@
-local Sequencers = include('stepdad/lib/sequencers')
+local Sequencers = include('timeparty/lib/Sequencers')
 
 -- todo: this whole file is gross
 
@@ -103,7 +103,7 @@ function Pages:redraw()
 
   screen.font_size(10)
   screen.font_face(4)
-  screen.level(9)
+  screen.level(4)
   screen.move(50, 30)
 
   --todo: ewww
@@ -115,7 +115,7 @@ function Pages:redraw()
   screen.move(95, 30)
   screen.text(page.sequencer:length())
 
-  screen.level(9)
+  screen.level(4)
 
   if page.selectedParam == 2 then
     screen.level(15)
@@ -125,7 +125,7 @@ function Pages:redraw()
   screen.text('DIV: ')
   screen.move(95, 45)
   screen.text(page.sequencer.rate)
-  screen.level(9)
+  screen.level(4)
   screen.update()
 end
 

@@ -1,7 +1,7 @@
-local FXSequencer = include('stepdad/lib/FXSequencer')
+local FXSequencer = include('timeparty/lib/FXSequencer')
 
 local GRID = grid.connect()
-local modVals = include('stepdad/lib/ModVals').new(GRID)
+local modVals = include('timeparty/lib/ModVals').new(GRID)
 
 local voice = 1
 
