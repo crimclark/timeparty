@@ -1,6 +1,12 @@
--- TIME PARTY
+-- *TimeParty*
 --
--- It's Party Time!
+-- Grid based delay sequencer
+--
+-- E2 : change sequence
+-- E3 : change param
+-- K3 : select param
+--
+-- It's Party Time.
 
 local TapeDelay = include('timeparty/lib/TapeDelay')
 local Pages = include('timeparty/lib/Pages')

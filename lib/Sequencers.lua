@@ -46,7 +46,8 @@ local mixSequencer = FXSequencer.new{
   grid = GRID,
   modVals = modVals.equalDivisions,
   set_fx = function(value)
-    audio.level_monitor(value)
+    audio.level_cut(value)
+    audio.level_monitor(1 - value)
   end,
 }
 
@@ -58,6 +59,7 @@ local Sequencers = {
 }
 
 Sequencers.visible = timeSequencer
+
 function update_tempo()
   for _, v in pairs(Sequencers) do
     v:update_tempo(params:get('bpm'))
