@@ -61,6 +61,8 @@ local Sequencers = {
 Sequencers.visible = timeSequencer
 
 function update_tempo()
+  local start = 120 / params:get('bpm')
+  softcut.loop_start(voice, start)
   for _, v in pairs(Sequencers) do
     v:update_tempo(params:get('bpm'))
   end
