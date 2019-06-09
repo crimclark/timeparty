@@ -14,8 +14,6 @@ function sc.init()
 
   softcut.play(1, 1)
   softcut.rate(1, 1)
-  -- todo: add to params, control from rate page
-  --  softcut.rate_slew_time(1,0.25)
   softcut.loop_start(1, 1)
   softcut.loop_end(1, 1.5)
   softcut.loop(1, 1)
