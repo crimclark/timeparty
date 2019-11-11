@@ -3,6 +3,9 @@ local FXSequencer = include('timeparty/lib/FXSequencer')
 local GRID = grid.connect()
 local modVals = include('timeparty/lib/ModVals').new(GRID)
 
+print('OLD RATE VALS!!!!!!!!!!!!!')
+for i,v in ipairs(modVals.beatDivisionsReversed) do print(v) end
+
 local voice = 1
 
 -- todo: set in function
@@ -37,8 +40,8 @@ local rateSequencer = FXSequencer.new{
   set_fx = function(value)
     local newRate = calculate_rate(params:get('bpm'), value)
     local truncated = math.floor(newRate * 100) / 100
-    if truncated ~= math.abs(rate) then 
-      rate = truncated 
+    if truncated ~= math.abs(rate) then
+      rate = truncated
       softcut.rate(voice, rate)
     end
   end,
@@ -86,7 +89,7 @@ crow.input[1].change = function(s)
   t = t1
   params:set('bpm', 60/dt)
 end
-  
+
 crow.input[2].mode('change', 1, 0.05, 'rising')
 crow.input[2].change = function(s)
   rate = -rate

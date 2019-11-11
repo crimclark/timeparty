@@ -1,23 +1,39 @@
-local GRID = grid.connect()
-local modVals = include('timeparty/lib/ModVals').new(GRID)
-local container = include('timeparty/lib/SequencersNew').new{GRID = GRID, modVals = modVals}
-local sequencers = container.sequencers
+local Pages = {}
+Pages.__index = Pages
 
+function Pages.new(sequencers)
+  local timePage = create_page{
+    title = 'T i m e',
+    sequencer = sequencers.time,
+  }
 
--- todo: initialize all this in timeparty.lua, move init_params to main timeparty.lua
--- todo: pass sequencers to Pages
+  local ratePage = create_page{
+    title = 'R a t e',
+    sequencer = sequencers.rate,
+  }
 
-function init_params()
-  params:add_number('bpm', 'bpm', 40, 240, 120)
-  params:set_action('bpm', function() container:update_tempo() end)
-  params:add_control('rate_slew', 'Rate Slew', controlspec.new(0, 5.0, 'lin'))
-  params:set_action('rate_slew', function()
-    softcut.rate_slew_time(1, params:get('rate_slew'))
-  end)
+  local feedbackPage = create_page{
+    title = 'F e e d b a c k',
+    sequencer = sequencers.feedback,
+  }
+
+  local mixPage = create_page{
+    title = 'M i x',
+    sequencer = sequencers.mix,
+  }
+
+  local pages = { timePage, ratePage, feedbackPage, mixPage }
+  local index = {}
+  for i, v in ipairs(pages) do index[v] = i end
+  pages.index = index
+  pages.active = timePage
+
+  setmetatable(pages, Pages)
+  setmetatable(pages, {__index = Pages})
+
+  return pages
 end
 
-init_params()
-container:start()
 
 local timeDivs = {0.1875, 0.25, 0.333, 0.375, 0.5, 0.667, 0.75, 1}
 timeDivs.index = #timeDivs
@@ -41,44 +57,37 @@ function create_page(options)
   return page
 end
 
-local timePage = create_page{
-  title = 'T i m e',
-  sequencer = sequencers.time,
-}
-
-local ratePage = create_page{
-  title = 'R a t e',
-  sequencer = sequencers.rate,
-}
-
-local feedbackPage = create_page{
-  title = 'F e e d b a c k',
-  sequencer = sequencers.feedback,
-}
-
-local mixPage = create_page{
-  title = 'M i x',
-  sequencer = sequencers.mix,
-}
-
-local Pages = { timePage, ratePage, feedbackPage, mixPage }
+--local timePage = create_page{
+--  title = 'T i m e',
+--  sequencer = sequencers.time,
+--}
+--
+--local ratePage = create_page{
+--  title = 'R a t e',
+--  sequencer = sequencers.rate,
+--}
+--
+--local feedbackPage = create_page{
+--  title = 'F e e d b a c k',
+--  sequencer = sequencers.feedback,
+--}
+--
+--local mixPage = create_page{
+--  title = 'M i x',
+--  sequencer = sequencers.mix,
+--}
+--
+--local Pages = { timePage, ratePage, feedbackPage, mixPage }
 
 function Pages:new_page(index)
   self.active.sequencer.visible = false
-  local newIndex = util.clamp(index, 1, #Pages)
+  local newIndex = util.clamp(index, 1, #self)
+  print(#self)
   self.active = self[newIndex]
   self.active.sequencer.visible = true
   self.active.sequencer:init()
   self:redraw()
 end
-
-local index = {}
-for i, v in ipairs(Pages) do
-  index[v] = i
-end
-Pages.index = index
-
-Pages.active = timePage
 
 function Pages:active_index()
   return self.index[self.active]
@@ -89,6 +98,7 @@ function Pages:init()
   self.active.sequencer:init()
 end
 
+-- todo: methods below should all be instance methods on page, not Pages
 function Pages:update_selected_param()
   local activeIndex = self:active_index()
   local page = self[activeIndex]

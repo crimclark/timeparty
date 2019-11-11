@@ -1,7 +1,18 @@
 local ModVals = {}
 
 function ModVals.new(grid)
-  local create_beat_divisions = function(grid)
+  local create_beat_divisions = function(grid, initial)
+    local next = {initial[1], initial[2], initial[3]}
+    while #initial < grid.rows do
+      for i = 3,1,-1 do
+        table.insert(initial, 1, next[i] / 2)
+      end
+      next = {initial[1], initial[2], initial[3]}
+    end
+    return initial
+  end
+
+  local beat_divisions = function(grid)
     local divisions = {0.375, 0.5, 0.667}
     local multiplier = 2
     while #divisions  < grid.rows do
@@ -9,14 +20,6 @@ function ModVals.new(grid)
         table.insert(divisions, divisions[i] * multiplier)
       end
       multiplier = multiplier * 2
-    end
-    return divisions
-  end
-
-  local create_equal_divisions = function(grid)
-    local divisions = {}
-    for i = grid.rows, 1, -1 do
-      table.insert(divisions, i / grid.rows)
     end
     return divisions
   end
@@ -29,11 +32,19 @@ function ModVals.new(grid)
     return reversed
   end
 
-  local beatDivisions = create_beat_divisions(grid)
+  local create_equal_divisions = function(grid)
+    local divisions = {}
+    for i = grid.rows, 1, -1 do
+      table.insert(divisions, i / grid.rows)
+    end
+    return divisions
+  end
 
   return {
-    beatDivisions = beatDivisions,
-    beatDivisionsReversed = reverse_table(beatDivisions),
+--    beatDivisions = create_beat_divisions(grid),
+    timeVals = create_beat_divisions(grid, {1.333, 1.5, 2}),
+--    rateVals = create_beat_divisions(grid, {0.375, 0.75, 1}),
+    rateVals = reverse_table(beat_divisions(grid)),
     equalDivisions = create_equal_divisions(grid)
   }
 end
