@@ -16,28 +16,31 @@ function set_rate_slew()
   softcut.rate_slew_time(1, params:get('rate_slew'))
 end
 
-function calculate_delay_time(bpm, beatDivision)
-  return (60 / bpm) * beatDivision
-end
-
 function calculate_rate(bpm, beatDivision)
   return (bpm / 60) * beatDivision
 end
 
 local timeSequencer = FXSequencer.new{
   grid = GRID,
-  modVals = modVals.beatDivisions,
+  modVals = {0.375, 0.5, 0.667, 0.75, 1, 1.334, 1.5, 2},
   set_fx = function(value)
-    softcut.loop_end(voice, calculate_delay_time(params:get('bpm'), value) + 1)
+    softcut.loop_end(voice, value + 1)
   end,
   visible = true,
 }
+
+local rate = 1
 
 local rateSequencer = FXSequencer.new{
   grid = GRID,
   modVals = modVals.beatDivisionsReversed,
   set_fx = function(value)
-    softcut.rate(voice, calculate_rate(params:get('bpm'), value))
+    local newRate = calculate_rate(params:get('bpm'), value)
+    local truncated = math.floor(newRate * 100) / 100
+    if truncated ~= math.abs(rate) then 
+      rate = truncated 
+      softcut.rate(voice, rate)
+    end
   end,
 }
 
@@ -68,11 +71,26 @@ local Sequencers = {
 Sequencers.visible = timeSequencer
 
 function update_tempo()
-  local start = 120 / params:get('bpm')
-  softcut.loop_start(voice, start)
   for _, v in pairs(Sequencers) do
     v:update_tempo(params:get('bpm'))
   end
+end
+
+local t = 0 -- last tap time
+local dt = 1 -- last tapped delta
+
+crow.input[1].mode('change', 1, 0.05, 'rising')
+crow.input[1].change = function(s)
+  local t1 = util.time()
+  dt = t1 - t
+  t = t1
+  params:set('bpm', 60/dt)
+end
+  
+crow.input[2].mode('change', 1, 0.05, 'rising')
+crow.input[2].change = function(s)
+  rate = -rate
+  softcut.rate(voice, rate)
 end
 
 return Sequencers

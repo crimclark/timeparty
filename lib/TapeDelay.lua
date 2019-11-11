@@ -1,7 +1,6 @@
 local sc = {}
 
 function sc.init()
-  audio.monitor_mono()
   audio.level_monitor(0)
   audio.level_cut(1.0)
   audio.level_adc_cut(1)
@@ -15,7 +14,7 @@ function sc.init()
   softcut.play(1, 1)
   softcut.rate(1, 1)
   softcut.loop_start(1, 1)
-  softcut.loop_end(1, 1.5)
+  softcut.loop_end(1, 2)
   softcut.loop(1, 1)
   softcut.fade_time(1, 0.1)
   -- turn off record to "hold"?
