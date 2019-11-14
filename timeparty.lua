@@ -8,31 +8,38 @@
 --
 -- It's Party Time.
 
-local TapeDelay = include('timeparty/lib/TapeDelay')
+local TapeDelay = include('lib/TapeDelay')
 local GRID = grid.connect()
-local modVals = include('timeparty/lib/ModVals').new(GRID)
-local container = include('timeparty/lib/SequencersNew').new{GRID = GRID, modVals = modVals}
-local Pages = include('timeparty/lib/PagesNew').new(container.sequencers)
+local modVals = include('lib/ModVals').new(GRID)
+local container = include('lib/SequencersNew').new{GRID = GRID, modVals = modVals}
+local Pages = include('lib/PagesNew').new(container.sequencers)
+local lfo = include('lib/hnds')
 
 function init()
-  print('rate vals!!')
-  for i,v in ipairs(modVals.rateVals) do print(v) end
-  print('time vals!!')
-  for i,v in ipairs(modVals.timeVals) do print(v) end
   init_params()
   TapeDelay.init()
   Pages:init()
   container:start()
+  lfo[1].lfo_targets = {'pan'}
+  lfo.init()
   redraw()
 end
 
 function init_params()
   params:add_number('bpm', 'bpm', 40, 240, 120)
   params:set_action('bpm', function() container:update_tempo() end)
-  params:add_control('rate_slew', 'Rate Slew', controlspec.new(0, 5.0, 'lin'))
+  params:add_control('rate_slew', 'rate slew', controlspec.new(0, 5.0, 'lin'))
   params:set_action('rate_slew', function()
     softcut.rate_slew_time(1, params:get('rate_slew'))
   end)
+  params:add_control('pan', 'pan', controlspec.new(-1.0, 1.0, "lin", 0.01, 0.01, ""))
+  params:set_action('pan', function(x)
+    softcut.pan(1, x)
+  end)
+end
+
+function lfo.process()
+  params:set('pan', lfo.scale(lfo[1].slope, -1.0, 1.0, -100, 100) * 0.01)
 end
 
 function redraw()

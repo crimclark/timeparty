@@ -29,6 +29,8 @@ function sc.init()
   softcut.filter_lp(1, 0);
   softcut.filter_bp(1, 1.0);
   softcut.filter_rq(1, 2.0);
+
+  softcut.pan_slew_time(1, 0.1)
 end
 
 return sc

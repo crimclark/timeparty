@@ -9,16 +9,20 @@ function calculate_rate(bpm, beatDivision)
   return (bpm / 60) * beatDivision
 end
 
+function calculate_lfo_freq (bpm, rate)
+  return rate * bpm * .01
+end
+
 local rate = 1
 
 function SequencersContainer.new(options)
   local GRID = options.GRID
   local modVals = options.modVals
 
-  -- todo: index sequencers by number?
   local container = {
     sequencers = {
       time = FXSequencer.new{
+        type = 'Time',
         grid = GRID,
         modVals = {0.375, 0.5, 0.666, 0.75, 1, 1.333, 1.5, 2},
         set_fx = function(value) softcut.loop_end(voice, value + 1) end,
@@ -26,6 +30,7 @@ function SequencersContainer.new(options)
       },
 
       rate = FXSequencer.new{
+        type = 'Rate',
         grid = GRID,
         modVals = modVals.rateVals,
         set_fx = function(value)
@@ -39,17 +44,18 @@ function SequencersContainer.new(options)
       },
 
       feedback = FXSequencer.new{
+        type = 'feeedback',
         grid = GRID,
         modVals = modVals.equalDivisions,
         set_fx = function(value) softcut.pre_level(voice, value) end,
       },
 
       mix = FXSequencer.new{
+        type = 'pan',
         grid = GRID,
-        modVals = modVals.equalDivisions,
+        modVals = {8, 4, 2, 1, 0.5, 0.25, 0.125, 0.625},
         set_fx = function(value)
-          audio.level_cut(value)
-          audio.level_monitor(1 - value)
+          params:set('1lfo_freq', calculate_lfo_freq(params:get('bpm'), value))
         end,
       },
     },

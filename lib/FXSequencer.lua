@@ -14,7 +14,8 @@ function FXSequencer.new(options)
     rate = 1.0,
     steps = {},
     positionX = 1,
-    metro = metro.init()
+    metro = metro.init(),
+    type = options.type
   }
   setmetatable(seq, FXSequencer)
   setmetatable(seq, {__index = FXSequencer})
@@ -29,6 +30,7 @@ function FXSequencer:start()
 end
 
 function FXSequencer:init()
+  self:redraw()
   self.grid.key = function(x,y,z)
     if z == 1 then
       self.steps[x] = y
