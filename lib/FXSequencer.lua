@@ -15,7 +15,8 @@ function FXSequencer.new(options)
     steps = {},
     positionX = 1,
     metro = metro.init(),
-    type = options.type
+    type = options.type,
+    held = {x = 0, y = 0}
   }
   setmetatable(seq, FXSequencer)
   setmetatable(seq, {__index = FXSequencer})
@@ -33,9 +34,16 @@ function FXSequencer:init()
   self:redraw()
   self.grid.key = function(x,y,z)
     if z == 1 then
-      self.steps[x] = y
+      if self.held.y == y then
+        local first,last = math.min(x, self.held.x), math.max(x, self.held.x)
+        for i=first,last do self.steps[i] = y end
+      else
+        self.steps[x] = y
+      end
+      self.held = {x = x, y = y}
       self:redraw()
     end
+    if z == 0 then self.held = {x = 0, y = 0} end
   end
 end
 
