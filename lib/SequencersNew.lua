@@ -1,5 +1,4 @@
 local FXSequencer = include('timeparty/lib/FXSequencer')
-local MusicUtil = require "musicutil"
 
 local voice = 1
 
@@ -21,24 +20,6 @@ local reverb = 0
 function SequencersContainer.new(options)
   local GRID = options.GRID
   local modVals = options.modVals
-  print('RATE VALS!')
-  for i,v in ipairs(modVals.rateVals) do
-    print(v)
-  end
---  local major = {2/1, 15/8, 5/3, 3/2, 4/3, 5/4, 11/10, 1/1}
-  local major = MusicUtil.intervals_to_ratios({12,11,9,7,5,4,2,0})
-  local minor = MusicUtil.intervals_to_ratios({12,10,8,7,5,3,2,0})
-  local perfect = MusicUtil.intervals_to_ratios({29,24,19,17,12,7,5,0})
-  local newTbl = {}
-  print('NEW RATE VALS!')
-  for i,v in ipairs(perfect) do
-    table.insert(newTbl, v/4)
-    print(newTbl[i])
-  end
-  print('equal divs')
-  for i,v in ipairs(modVals.equalDivisions) do
-    print(v)
-  end
 
   local container = {
     sequencers = {
@@ -51,8 +32,7 @@ function SequencersContainer.new(options)
 
       rate = FXSequencer.new{
         grid = GRID,
-        modVals = modVals.rateVals,
-        modVals = newTbl,
+        modVals = modVals.perfect,
         set_fx = function(value)
           local newRate = calculate_rate(params:get('bpm'), value)
           local truncated = math.floor(newRate * 100) / 100

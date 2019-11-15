@@ -12,7 +12,8 @@ local TapeDelay = include('lib/TapeDelay')
 local GRID = grid.connect()
 local modVals = include('lib/ModVals').new(GRID)
 local container = include('lib/SequencersNew').new{GRID = GRID, modVals = modVals}
-local Pages = include('lib/PagesNew').new(container.sequencers)
+local sequencers = container.sequencers
+local Pages = include('lib/PagesNew').new(sequencers)
 local lfo = include('lib/hnds')
 
 function init()
@@ -29,13 +30,12 @@ function init_params()
   params:add_number('bpm', 'bpm', 40, 240, 120)
   params:set_action('bpm', function() container:update_tempo() end)
   params:add_control('rate_slew', 'rate slew', controlspec.new(0, 5.0, 'lin'))
-  params:set_action('rate_slew', function()
-    softcut.rate_slew_time(1, params:get('rate_slew'))
-  end)
+  params:set_action('rate_slew', function() softcut.rate_slew_time(1, params:get('rate_slew')) end)
+  local rateModes = {'perfect', 'major', 'minor'}
+  params:add_option('rate_mode', 'rate mode', rateModes, 1)
+  params:set_action('rate_mode', function(i) sequencers.rate.modVals = modVals[rateModes[i]] end)
   params:add_control('pan', 'pan', controlspec.new(-1.0, 1.0, "lin", 0.01, 0.01, ""))
-  params:set_action('pan', function(x)
-    softcut.pan(1, x)
-  end)
+  params:set_action('pan', function(v) softcut.pan(1, v) end)
 end
 
 function lfo.process()

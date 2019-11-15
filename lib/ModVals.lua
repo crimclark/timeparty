@@ -1,4 +1,5 @@
 local ModVals = {}
+local MusicUtil = require "musicutil"
 
 function ModVals.new(grid)
   local create_beat_divisions = function(grid, initial)
@@ -45,8 +46,11 @@ function ModVals.new(grid)
     timeVals = create_beat_divisions(grid, {1.333, 1.5, 2}),
 --    rateVals = create_beat_divisions(grid, {0.375, 0.75, 1}),
     rateVals = reverse_table(beat_divisions(grid)),
-    equalDivisions = create_equal_divisions(grid)
-  }
+    equalDivisions = create_equal_divisions(grid),
+    major = MusicUtil.intervals_to_ratios({12,11,9,7,5,4,2,0}),
+    minor = MusicUtil.intervals_to_ratios({12,10,8,7,5,3,2,0}),
+    perfect = MusicUtil.intervals_to_ratios({29,24,19,17,12,7,5,0}),
+}
 end
 
 return ModVals
