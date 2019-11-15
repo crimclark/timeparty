@@ -56,12 +56,12 @@ local feedbackPage = create_page{
   sequencer = sequencers.feedback,
 }
 
-local mixPage = create_page{
-  title = 'M i x',
-  sequencer = sequencers.mix,
+local panPage = create_page{
+  title = 'P a n',
+  sequencer = sequencers.pan,
 }
 
-local Pages = { timePage, ratePage, feedbackPage, mixPage }
+local Pages = { timePage, ratePage, feedbackPage, panPage }
 
 function Pages:new_page(index)
   self.active.sequencer.visible = false

@@ -15,7 +15,6 @@ function FXSequencer.new(options)
     steps = {},
     positionX = 1,
     metro = metro.init(),
-    type = options.type,
     held = {x = 0, y = 0}
   }
   setmetatable(seq, FXSequencer)

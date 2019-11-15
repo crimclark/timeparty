@@ -17,12 +17,22 @@ function Pages.new(sequencers)
     sequencer = sequencers.feedback,
   }
 
-  local mixPage = create_page{
-    title = 'M i x',
-    sequencer = sequencers.mix,
+  local panPage = create_page{
+    title = 'A u t o p a n',
+    sequencer = sequencers.pan,
   }
 
-  local pages = { timePage, ratePage, feedbackPage, mixPage }
+  local posPage = create_page{
+    title = 'P o s i t i o n',
+    sequencer = sequencers.position,
+  }
+
+  local revPage = create_page{
+    title = 'R e v e r b',
+    sequencer = sequencers.reverb,
+  }
+
+  local pages = { timePage, ratePage, feedbackPage, panPage, posPage, revPage }
   local index = {}
   for i, v in ipairs(pages) do index[v] = i end
   pages.index = index
