@@ -62,37 +62,19 @@ function change_length(Pages, delta)
   Pages.active.sequencer:set_length_offset(delta)
 end
 
+function change_direction(Pages, delta)
+  Pages.active.sequencer.direction = util.clamp(Pages.active.sequencer.direction + delta, 1, 4)
+end
+
 function create_page(options)
   local page = {
     title = options.title,
     sequencer = options.sequencer,
-    params = { change_length, update_rate },
+    params = { change_length, update_rate, change_direction },
     selectedParam = 1,
   }
   return page
 end
-
---local timePage = create_page{
---  title = 'T i m e',
---  sequencer = sequencers.time,
---}
---
---local ratePage = create_page{
---  title = 'R a t e',
---  sequencer = sequencers.rate,
---}
---
---local feedbackPage = create_page{
---  title = 'F e e d b a c k',
---  sequencer = sequencers.feedback,
---}
---
---local mixPage = create_page{
---  title = 'M i x',
---  sequencer = sequencers.mix,
---}
---
---local Pages = { timePage, ratePage, feedbackPage, mixPage }
 
 function Pages:new_page(index)
   self.active.sequencer.visible = false
@@ -126,44 +108,50 @@ function Pages:update_param(delta)
   self.active.sequencer:redraw()
 end
 
-function Pages:redraw()
-  local activeIndex = self:active_index()
-  local page = self[activeIndex]
+function Pages:draw_title(index, margin)
+  local page = self[index]
 
   screen.clear()
   screen.move(6, 55)
-  screen.font_size(70)
+  screen.font_size(60)
   screen.font_face(1)
   screen.level(15)
-  screen.text(activeIndex)
+  screen.text(index)
   screen.font_face(9)
   screen.font_size(11)
-  screen.move(50, 10)
+  screen.move(margin, 10)
   screen.text(page.title)
+end
 
-  screen.font_size(10)
-  screen.font_face(4)
+function Pages:draw_param(name, value, index, margin, lineHeight)
+  local activeIndex = self:active_index()
+  local page = self[activeIndex]
   screen.level(4)
-  screen.move(50, 30)
+  screen.move(margin, lineHeight)
 
-  if page.selectedParam == 1 then
-    screen.level(15)
-  end
-
-  screen.text('LENGTH: ')
-  screen.move(95, 30)
-  screen.text(page.sequencer:length())
+  if page.selectedParam == index then screen.level(15) end
+  screen.text(name .. ': ')
+  screen.move(95, lineHeight)
+  screen.text(value)
   screen.level(4)
+end
 
-  if page.selectedParam == 2 then
-    screen.level(15)
-  end
+function Pages:redraw()
+  local activeIndex = self:active_index()
+  local page = self[activeIndex]
+  local margin = 45;
+  self:draw_title(activeIndex, margin)
 
-  screen.move(50, 45)
-  screen.text('DIV: ')
-  screen.move(95, 45)
-  screen.text(page.sequencer.rate)
-  screen.level(4)
+  screen.font_size(8)
+  screen.font_face(2)
+
+  local lineHeight = 23
+  local inc = 10
+  self:draw_param('LENGTH', page.sequencer:length(), 1, margin, lineHeight)
+  lineHeight = lineHeight + inc
+  self:draw_param('DIV', page.sequencer.rate, 2, margin, lineHeight)
+  lineHeight = lineHeight + inc
+  self:draw_param('DIR', page.sequencer.directions[page.sequencer.direction], 3, margin, lineHeight)
   screen.update()
 end
 

@@ -9,14 +9,15 @@ function FXSequencer.new(options)
     modVals = options.modVals,
     set_fx = options.set_fx,
     visible = options.visible or false,
-    direction = 'drunk',
+    direction = 1,
     currentVal = 1,
     lengthOffset = 0,
     rate = 1.0,
     steps = {},
     positionX = 1,
     metro = metro.init(),
-    held = {x = 0, y = 0}
+    held = {x = 0, y = 0 },
+    directions = {'forward', 'reverse', 'random', 'drunk'},
   }
   setmetatable(seq, FXSequencer)
   setmetatable(seq, {__index = FXSequencer})
@@ -85,10 +86,10 @@ end
 
 function FXSequencer:get_next_step()
   local dirs = {
-    forward = self:forward(),
-    reverse = self:reverse(),
-    drunk = self:drunk(),
-    random = math.random(16),
+    self:forward(),
+    self:reverse(),
+    math.random(16),
+    self:drunk(),
   }
 
   return dirs[self.direction]
