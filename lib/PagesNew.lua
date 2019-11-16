@@ -32,7 +32,12 @@ function Pages.new(sequencers)
     sequencer = sequencers.reverb,
   }
 
-  local pages = { timePage, ratePage, feedbackPage, panPage, posPage, revPage }
+  local cutoffPage = create_page{
+    title = 'F i l t e r',
+    sequencer = sequencers.cutoff,
+  }
+
+  local pages = { timePage, ratePage, feedbackPage, panPage, posPage, revPage, cutoffPage }
   local index = {}
   for i, v in ipairs(pages) do index[v] = i end
   pages.index = index

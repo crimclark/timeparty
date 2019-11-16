@@ -36,6 +36,24 @@ function init_params()
   params:set_action('rate_mode', function(i) sequencers.rate.modVals = modVals[rateModes[i]] end)
   params:add_control('pan', 'pan', controlspec.new(-1.0, 1.0, "lin", 0.01, 0.01, ""))
   params:set_action('pan', function(v) softcut.pan(1, v) end)
+  -- filter cut off
+  params:add_control("filter_cutoff", "filter cutoff", controlspec.new(10, 12000, 'exp', 1, 12000, "Hz"))
+  params:set_action("filter_cutoff", function(x) softcut.post_filter_fc(1, x) softcut.pre_filter_fc(1, x) end)
+  -- low pass
+  params:add_control("low_pass", "low pass", controlspec.new(0, 1, 'lin', 0, 1, ""))
+  params:set_action("low_pass", function(x) softcut.post_filter_lp(1, x) softcut.pre_filter_lp(1, x) end)
+  -- high pass
+  params:add_control("high_pass", "high pass", controlspec.new(0, 1, 'lin', 0, 0, ""))
+  params:set_action("high_pass", function(x) softcut.post_filter_hp(1, x) softcut.pre_filter_hp(1, x) end)
+  -- band pass
+  params:add_control("band_pass", "band pass", controlspec.new(0, 1, 'lin', 0, 0, ""))
+  params:set_action("band_pass", function(x) softcut.post_filter_bp(1, x) softcut.pre_filter_bp(1, x) end)
+  -- filter q
+  params:add_control("filter_q", "filter q", controlspec.new(0.0005, 8.0, 'exp', 0, 5.0, ""))
+  params:set_action("filter_q", function(x) softcut.post_filter_rq(1, x) softcut.pre_filter_rq(1, x) end)
+  -- dry signal
+--  params:add_control("dry_signal", "dry signal", controlspec.new(0, 0, 'lin', 0, 0, ""))
+--  params:set_action("dry_signal", function(x) softcut.post_filter_dr(1, x) end)
 end
 
 function lfo.process()

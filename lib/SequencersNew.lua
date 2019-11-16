@@ -49,6 +49,15 @@ function SequencersContainer.new(options)
         set_fx = function(value) softcut.pre_level(voice, value) end,
       },
 
+      cutoff = FXSequencer.new{
+        grid = GRID,
+        modVals = {120, 240, 480, 960, 1920, 3840, 7680, 12000},
+        set_fx = function(value)
+          softcut.post_filter_fc(1, value)
+          softcut.pre_filter_fc(1, value)
+        end,
+      },
+
       pan = FXSequencer.new{
         grid = GRID,
         modVals = {8, 4, 2, 1, 0.5, 0.25, 0.125, 0.625},

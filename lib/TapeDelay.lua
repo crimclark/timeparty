@@ -24,11 +24,20 @@ function sc.init()
   softcut.position(1, 1)
   softcut.enable(1, 1)
 
-  softcut.filter_dry(1, 0.125);
-  softcut.filter_fc(1, 1200);
-  softcut.filter_lp(1, 0);
-  softcut.filter_bp(1, 1.0);
-  softcut.filter_rq(1, 2.0);
+  softcut.post_filter_dry(1, 0)
+  softcut.filter_fc(1, 1200)
+  softcut.filter_fc_mod(1, 1)
+  softcut.post_filter_lp(1, 1)
+  softcut.post_filter_rq(1, 5)
+  softcut.post_filter_hp(1, 0)
+  softcut.post_filter_bp(1, 0)
+  softcut.post_filter_br(1, 0)
+
+  --  softcut.filter_dry(1, 0.125);
+--  softcut.filter_fc(1, 1200);
+--  softcut.filter_lp(1, 0);
+--  softcut.filter_bp(1, 1.0);
+--  softcut.filter_rq(1, 2.0);
 
   softcut.pan_slew_time(1, 0.1)
 end
