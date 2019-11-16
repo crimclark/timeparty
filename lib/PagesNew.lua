@@ -97,7 +97,6 @@ end
 function Pages:new_page(index)
   self.active.sequencer.visible = false
   local newIndex = util.clamp(index, 1, #self)
-  print(#self)
   self.active = self[newIndex]
   self.active.sequencer.visible = true
   self.active.sequencer:init()
@@ -124,6 +123,7 @@ function Pages:update_param(delta)
   local activeIndex = self:active_index()
   local page = self[activeIndex]
   page.params[page.selectedParam](self, delta)
+  self.active.sequencer:redraw()
 end
 
 function Pages:redraw()

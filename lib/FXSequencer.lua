@@ -9,6 +9,7 @@ function FXSequencer.new(options)
     modVals = options.modVals,
     set_fx = options.set_fx,
     visible = options.visible or false,
+    direction = 'drunk',
     currentVal = 1,
     lengthOffset = 0,
     rate = 1.0,
@@ -65,9 +66,32 @@ end
 
 function FXSequencer:count()
   return function()
-    self.positionX = (self.positionX % self:length()) + 1
+    self.positionX = self:get_next_step()
     self:redraw()
   end
+end
+
+function FXSequencer:forward()
+  return self.positionX % self:length() + 1
+end
+
+function FXSequencer:reverse()
+  return (self.positionX - 2) % self:length() + 1
+end
+
+function FXSequencer:drunk()
+  return math.random(0, 1) == 0 and self:forward() or self:reverse()
+end
+
+function FXSequencer:get_next_step()
+  local dirs = {
+    forward = self:forward(),
+    reverse = self:reverse(),
+    drunk = self:drunk(),
+    random = math.random(16),
+  }
+
+  return dirs[self.direction]
 end
 
 function FXSequencer:redraw()
