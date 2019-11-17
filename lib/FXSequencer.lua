@@ -12,12 +12,16 @@ function FXSequencer.new(options)
     direction = 1,
     currentVal = 1,
     lengthOffset = 0,
+    valOffset = 1,
+    minVal = options.minVal or 0,
+    maxVal = options.maxVal or 1,
     rate = 1.0,
     steps = {},
     positionX = 1,
+    prevPositionX = 0,
     metro = metro.init(),
     held = {x = 0, y = 0 },
-    directions = {'forward', 'reverse', 'random', 'drunk'},
+    directions = {'forward', 'reverse', 'pendulum', 'random', 'drunk'},
   }
   setmetatable(seq, FXSequencer)
   setmetatable(seq, {__index = FXSequencer})
@@ -67,7 +71,9 @@ end
 
 function FXSequencer:count()
   return function()
+    local pos = self.positionX
     self.positionX = self:get_next_step()
+    self.prevPositionX = pos
     self:redraw()
   end
 end
@@ -80,6 +86,13 @@ function FXSequencer:reverse()
   return (self.positionX - 2) % self:length() + 1
 end
 
+function FXSequencer:pendulum()
+  if self.positionX == 1 or (self.positionX > self.prevPositionX and self.positionX < self:length()) then
+    return self:forward()
+  end
+  return self:reverse()
+end
+
 function FXSequencer:drunk()
   return math.random(0, 1) == 0 and self:forward() or self:reverse()
 end
@@ -88,10 +101,10 @@ function FXSequencer:get_next_step()
   local dirs = {
     self:forward(),
     self:reverse(),
+    self:pendulum(),
     math.random(16),
     self:drunk(),
   }
-
   return dirs[self.direction]
 end
 
@@ -109,7 +122,7 @@ function FXSequencer:redraw()
 
       if i == self.positionX then
         self.currentVal = self.modVals[y]
-        self.set_fx(self.currentVal)
+        self.set_fx(self.currentVal, self.valOffset)
 
         if visible then self.grid:led(i, j, buttonLevels.BRIGHT) end
       end

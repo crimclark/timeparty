@@ -29,7 +29,7 @@ end
 function init_params()
   params:add_number('bpm', 'bpm', 40, 240, 120)
   params:set_action('bpm', function() container:update_tempo() end)
-  params:add_control('rate_slew', 'rate slew', controlspec.new(0, 5.0, 'lin'))
+  params:add_control('rate_slew', 'rate slew', controlspec.new(0, 1, "lin", 0, 0.1, ""))
   params:set_action('rate_slew', function() softcut.rate_slew_time(1, params:get('rate_slew')) end)
   local rateModes = {'perfect', 'major', 'minor'}
   params:add_option('rate_mode', 'rate mode', rateModes, 1)

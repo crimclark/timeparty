@@ -33,13 +33,13 @@ function Pages.new(sequencers)
   }
 
   local cutoffPage = create_page{
-    title = 'F i l t e r',
+    title = 'F i l t e r C u t',
     sequencer = sequencers.cutoff,
   }
 
-  local pages = { timePage, ratePage, feedbackPage, panPage, posPage, revPage, cutoffPage }
+  local pages = {timePage, ratePage, feedbackPage, panPage, posPage, revPage, cutoffPage}
   local index = {}
-  for i, v in ipairs(pages) do index[v] = i end
+  for i,v in ipairs(pages) do index[v] = i end
   pages.index = index
   pages.active = timePage
 
@@ -53,24 +53,30 @@ end
 local timeDivs = {0.1875, 0.25, 0.333, 0.375, 0.5, 0.667, 0.75, 1}
 timeDivs.index = #timeDivs
 
-function update_rate(Pages, delta)
+function update_rate(seq, delta)
   timeDivs.index = util.clamp(timeDivs.index + delta, 1, 8)
-  Pages.active.sequencer:update_rate(timeDivs[timeDivs.index])
+  seq:update_rate(timeDivs[timeDivs.index])
 end
 
-function change_length(Pages, delta)
-  Pages.active.sequencer:set_length_offset(delta)
+function change_length(seq, delta)
+  seq:set_length_offset(delta)
 end
 
-function change_direction(Pages, delta)
-  Pages.active.sequencer.direction = util.clamp(Pages.active.sequencer.direction + delta, 1, 4)
+function change_direction(seq, delta)
+--  seq.direction = util.clamp(seq.direction + delta, 1, 5)
+  seq.direction = util.clamp(seq.direction + delta, 1, #seq.directions)
+  print(seq.direction)
+end
+
+function shift_fine(seq, delta)
+  seq.valOffset = util.clamp(seq.valOffset + delta, 1, 200)
 end
 
 function create_page(options)
   local page = {
     title = options.title,
     sequencer = options.sequencer,
-    params = { change_length, update_rate, change_direction },
+    params = { change_length, update_rate, change_direction, shift_fine },
     selectedParam = 1,
   }
   return page
@@ -104,16 +110,17 @@ end
 function Pages:update_param(delta)
   local activeIndex = self:active_index()
   local page = self[activeIndex]
-  page.params[page.selectedParam](self, delta)
-  self.active.sequencer:redraw()
+  local activeSeq = self.active.sequencer
+  page.params[page.selectedParam](activeSeq, delta)
+  activeSeq:redraw()
 end
 
 function Pages:draw_title(index, margin)
   local page = self[index]
 
   screen.clear()
-  screen.move(6, 55)
-  screen.font_size(60)
+  screen.move(6, 34)
+  screen.font_size(50)
   screen.font_face(1)
   screen.level(15)
   screen.text(index)
@@ -147,11 +154,16 @@ function Pages:redraw()
 
   local lineHeight = 23
   local inc = 10
-  self:draw_param('LENGTH', page.sequencer:length(), 1, margin, lineHeight)
+  local seq = page.sequencer;
+
+-- todo: associate params with page - do this in loop
+  self:draw_param('Length', seq:length(), 1, margin, lineHeight)
   lineHeight = lineHeight + inc
-  self:draw_param('DIV', page.sequencer.rate, 2, margin, lineHeight)
+  self:draw_param('Speed', seq.rate, 2, margin, lineHeight)
   lineHeight = lineHeight + inc
-  self:draw_param('DIR', page.sequencer.directions[page.sequencer.direction], 3, margin, lineHeight)
+  self:draw_param('Direction', seq.directions[seq.direction], 3, margin, lineHeight)
+  lineHeight = lineHeight + inc
+  self:draw_param('Shift', seq.valOffset, 4, margin, lineHeight)
   screen.update()
 end
 

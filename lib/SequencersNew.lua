@@ -26,19 +26,21 @@ function SequencersContainer.new(options)
       time = FXSequencer.new{
         grid = GRID,
         modVals = {0.375, 0.5, 0.666, 0.75, 1, 1.333, 1.5, 2},
-        set_fx = function(value) softcut.loop_end(voice, value + 1) end,
+        set_fx = function(value, shiftAmt)
+          softcut.loop_end(voice, (value / shiftAmt) + 1)
+        end,
         visible = true,
       },
 
       rate = FXSequencer.new{
         grid = GRID,
         modVals = modVals.perfect,
-        set_fx = function(value)
-          local newRate = calculate_rate(params:get('bpm'), value)
+        set_fx = function(value, shiftAmt)
+          local newRate = calculate_rate(params:get('bpm'), value * shiftAmt)
           local truncated = math.floor(newRate * 100) / 100
           if truncated ~= math.abs(rate) then
             rate = truncated
-            softcut.rate(voice, rate)
+            softcut.rate(voice, math.min(rate, 65))
           end
         end,
       },
@@ -46,7 +48,9 @@ function SequencersContainer.new(options)
       feedback = FXSequencer.new{
         grid = GRID,
         modVals = modVals.equalDivisions,
-        set_fx = function(value) softcut.pre_level(voice, value) end,
+        set_fx = function(value, shiftAmt)
+          softcut.pre_level(voice, util.clamp(value + shiftAmt / 100, 0, 1))
+        end,
       },
 
       cutoff = FXSequencer.new{
@@ -72,7 +76,6 @@ function SequencersContainer.new(options)
         set_fx = function(value)
           local newPos = value - 0.125 + 1
           if newPos ~= position then
-            print(position)
             position = newPos
             softcut.position(voice, position)
           end
