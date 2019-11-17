@@ -66,7 +66,7 @@ function SequencersContainer.new(options)
         grid = GRID,
         modVals = {8, 4, 2, 1, 0.5, 0.25, 0.125, 0.625},
         set_fx = function(value)
-          params:set('1lfo_freq', calculate_lfo_freq(params:get('bpm'), value))
+--          params:set('1lfo_freq', calculate_lfo_freq(params:get('bpm'), value))
         end,
       },
 
