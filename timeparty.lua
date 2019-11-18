@@ -20,9 +20,21 @@ function init()
   init_params()
   TapeDelay.init()
   Pages:init()
-  container:start()
+--  container:start()
   lfo[1].lfo_targets = {'pan'}
   lfo.init()
+  local t = 0 -- last tap time
+  local dt = 1 -- last tapped delta
+
+  crow.input[1].mode('change', 1, 0.05, 'rising')
+  crow.input[1].change = function(s)
+    for _, v in pairs(sequencers) do v:count()() end
+
+    local t1 = util.time()
+    dt = t1 - t
+    t = t1
+    params:set('bpm', 60/dt)
+  end
   redraw()
 end
 

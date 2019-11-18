@@ -27,6 +27,7 @@ function SequencersContainer.new(options)
         grid = GRID,
         modVals = {0.375, 0.5, 0.666, 0.75, 1, 1.333, 1.5, 2},
         set_fx = function(value, shiftAmt)
+          print(value)
           softcut.loop_end(voice, (value / shiftAmt) + 1)
         end,
         visible = true,
@@ -62,23 +63,24 @@ function SequencersContainer.new(options)
         end,
       },
 
+
       pan = FXSequencer.new{
         grid = GRID,
-        modVals = {8, 4, 2, 1, 0.5, 0.25, 0.125, 0.625},
+        modVals = {8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625},
         set_fx = function(value)
+--          params:set('1lfo_freq', value) -- works for 120 bpm
+          params:set('1lfo_freq', value * (params:get('bpm')/120)) -- maybe right?
 --          params:set('1lfo_freq', calculate_lfo_freq(params:get('bpm'), value))
         end,
       },
 
       position = FXSequencer.new{
         grid = GRID,
-        modVals = modVals.equalDivisions,
+        -- todo: update these
+        modVals = {0, 0, 0, 0, 0, 0, 0, 0},
         set_fx = function(value)
-          local newPos = value - 0.125 + 1
-          if newPos ~= position then
-            position = newPos
-            softcut.position(voice, position)
-          end
+--          local newPos = value - 0.125 + 1
+          softcut.position(voice, value)
         end,
       },
 
@@ -109,16 +111,6 @@ function SequencersContainer:start()
   for _, v in pairs(self.sequencers) do v:start() end
 end
 
-local t = 0 -- last tap time
-local dt = 1 -- last tapped delta
-
-crow.input[1].mode('change', 1, 0.05, 'rising')
-crow.input[1].change = function(s)
-  local t1 = util.time()
-  dt = t1 - t
-  t = t1
-  params:set('bpm', 60/dt)
-end
 
 crow.input[2].mode('change', 1, 0.05, 'rising')
 crow.input[2].change = function(s)

@@ -75,6 +75,7 @@ function FXSequencer:count()
     self.positionX = self:get_next_step()
     self.prevPositionX = pos
     self:redraw()
+    self.set_fx(self.currentVal, self.valOffset)
   end
 end
 
@@ -122,7 +123,7 @@ function FXSequencer:redraw()
 
       if i == self.positionX then
         self.currentVal = self.modVals[y]
-        self.set_fx(self.currentVal, self.valOffset)
+--        self.set_fx(self.currentVal, self.valOffset)
 
         if visible then self.grid:led(i, j, buttonLevels.BRIGHT) end
       end
