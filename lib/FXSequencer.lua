@@ -1,7 +1,7 @@
 local FXSequencer = {}
 FXSequencer.__index = FXSequencer
 
-local buttonLevels = { BRIGHT = 15, MEDIUM = 4, DIM = 2 }
+local buttonLevels = { BRIGHT = 15, MEDIUM = 7, DIM = 3 }
 
 function FXSequencer.new(options)
   local seq = {
@@ -18,6 +18,7 @@ function FXSequencer.new(options)
     rate = 1.0,
     steps = {},
     positionX = 1,
+--    positionY = 8,
     prevPositionX = 0,
     metro = metro.init(),
     held = {x = 0, y = 0 },
@@ -41,9 +42,9 @@ function FXSequencer:init()
     if z == 1 then
       if self.held.y == y then
         local first,last = math.min(x, self.held.x), math.max(x, self.held.x)
-        for i=first,last do self.steps[i] = y end
+        for i=first,last do self.steps[i] = {y = y, on = 1} end
       else
-        self.steps[x] = y
+        self.steps[x] = {y = y, on = 1}
       end
       self.held = {x = x, y = y}
       self:redraw()
@@ -75,7 +76,7 @@ function FXSequencer:count()
     self.positionX = self:get_next_step()
     self.prevPositionX = pos
     self:redraw()
-    self.set_fx(self.currentVal, self.valOffset)
+--    self.set_fx(self.currentVal, self.valOffset)
   end
 end
 
@@ -109,33 +110,64 @@ function FXSequencer:get_next_step()
   return dirs[self.direction]
 end
 
+--function FXSequencer:redraw()
+--  local visible = self.visible
+--
+--  if visible then self.grid:all(0) end
+--
+--  for i = 1, self:length() do
+--    local y = self.steps[i]
+--    -- count down from bottom row 8 to current height
+--    for j = self.grid.rows, y, -1 do
+--
+--      if visible then self.grid:led(i, j, buttonLevels.MEDIUM) end
+--
+--      if i == self.positionX then
+--        self.currentVal = self.modVals[y]
+----        self.set_fx(self.currentVal, self.valOffset)
+--
+--        if visible then self.grid:led(i, j, buttonLevels.BRIGHT) end
+--      end
+--    end
+--  end
+--
+--  if self.visible then self.grid:refresh() end
+--end
 function FXSequencer:redraw()
   local visible = self.visible
 
   if visible then self.grid:all(0) end
 
   for i = 1, self:length() do
-    local y = self.steps[i]
+    local y = self.steps[i].y
     -- count down from bottom row 8 to current height
     for j = self.grid.rows, y, -1 do
 
-      if visible then self.grid:led(i, j, buttonLevels.MEDIUM) end
+    if visible then self.grid:led(i, j, buttonLevels.DIM) end
+    if visible and self.steps[i].on ~= 0 then self.grid:led(i, y, buttonLevels.MEDIUM) end
 
+    end
       if i == self.positionX then
         self.currentVal = self.modVals[y]
---        self.set_fx(self.currentVal, self.valOffset)
+        if visible then
+          if self.steps[i].on == 1 then
+            self.grid:led(i, y, buttonLevels.BRIGHT)
+            self.positionY = y
+          else
+            self.grid:led(i, y, 5)
+          end
+        end
 
-        if visible then self.grid:led(i, j, buttonLevels.BRIGHT) end
+        --        self.set_fx(self.currentVal, self.valOffset)
+
       end
-    end
   end
-
   if self.visible then self.grid:refresh() end
 end
 
 function FXSequencer:init_steps()
   for i = 1, self.grid.cols do
-    table.insert(self.steps, self.grid.rows)
+    table.insert(self.steps, {y = 8, on = 0})
   end
 end
 
