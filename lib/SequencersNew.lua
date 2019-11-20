@@ -9,13 +9,7 @@ function calculate_rate(bpm, beatDivision)
   return (bpm / 60) * beatDivision
 end
 
-function calculate_lfo_freq (bpm, rate)
-  return rate * bpm * .01
-end
-
 local rate = 1
-local position = 0
-local reverb = 0
 
 function SequencersContainer.new(options)
   local GRID = options.GRID
@@ -27,7 +21,6 @@ function SequencersContainer.new(options)
         grid = GRID,
         modVals = {0.375, 0.5, 0.666, 0.75, 1, 1.333, 1.5, 2},
         set_fx = function(value, shiftAmt)
-          print(value)
           softcut.loop_end(voice, (value / shiftAmt) + 1)
         end,
         visible = true,
@@ -58,8 +51,7 @@ function SequencersContainer.new(options)
         grid = GRID,
         modVals = {120, 240, 480, 960, 1920, 3840, 7680, 12000},
         set_fx = function(value)
-          softcut.post_filter_fc(1, value)
-          softcut.pre_filter_fc(1, value)
+          params:set('filter_cutoff', value)
         end,
       },
 
@@ -68,9 +60,7 @@ function SequencersContainer.new(options)
         grid = GRID,
         modVals = {8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625},
         set_fx = function(value)
---          params:set('1lfo_freq', value) -- works for 120 bpm
-          params:set('1lfo_freq', value * (params:get('bpm')/120)) -- maybe right?
---          params:set('1lfo_freq', calculate_lfo_freq(params:get('bpm'), value))
+          params:set('autopan_freq', value * (params:get('bpm')/120))
         end,
       },
 

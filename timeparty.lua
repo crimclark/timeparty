@@ -38,6 +38,8 @@ function init()
   redraw()
 end
 
+local toggle = {'on', 'off'}
+
 function init_params()
   params:add_number('bpm', 'bpm', 40, 240, 120)
   params:set_action('bpm', function() container:update_tempo() end)
@@ -46,6 +48,11 @@ function init_params()
   local rateModes = {'perfect', 'major', 'minor'}
   params:add_option('rate_mode', 'rate mode', rateModes, 1)
   params:set_action('rate_mode', function(i) sequencers.rate.modVals = modVals[rateModes[i]] end)
+  params:add_option('freeze', 'freeze', toggle, 2)
+  params:set_action('freeze', function(i)
+    softcut.rec(1, i - 1)
+--    softcut.rec(1, i)
+  end)
   params:add_control('pan', 'pan', controlspec.new(-1.0, 1.0, "lin", 0.01, 0.01, ""))
   params:set_action('pan', function(v) softcut.pan(1, v) end)
   -- filter cut off
@@ -63,6 +70,16 @@ function init_params()
   -- filter q
   params:add_control("filter_q", "filter q", controlspec.new(0.0005, 8.0, 'exp', 0, 5.0, ""))
   params:set_action("filter_q", function(x) softcut.post_filter_rq(1, x) softcut.pre_filter_rq(1, x) end)
+  -- autopan shape
+  params:add_option("autopan_shape", "autopan shape", lfo.options.lfotypes, 1)
+  params:set_action("autopan_shape", function(value) lfo[1].waveform = lfo.options.lfotypes[value] end)
+  -- autopan depth
+  params:add_number("autopan_depth", "autopan depth", 0, 100, 100)
+  params:set_action("autopan_depth", function(value) lfo[1].depth = value end)
+  -- autopan frequency
+  params:add_control("autopan_freq", "autopan freq", controlspec.new(0.001, 25, "lin", 0.001, 0, ""))
+  params:set_action("autopan_freq", function(value) lfo[1].freq = value end)
+  -- lfo offset
   -- dry signal
 --  params:add_control("dry_signal", "dry signal", controlspec.new(0, 0, 'lin', 0, 0, ""))
 --  params:set_action("dry_signal", function(x) softcut.post_filter_dr(1, x) end)
@@ -79,6 +96,11 @@ end
 function key(num, z)
   if num == 3 and z == 1 then
     Pages:update_selected_param()
+    redraw()
+  end
+
+  if num == 2 and z == 1 then
+    params:set('freeze', params:get('freeze') == 2 and 1 or 2)
     redraw()
   end
 end

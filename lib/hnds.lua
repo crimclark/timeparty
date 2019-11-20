@@ -10,19 +10,20 @@ local number_of_outputs = 1
 
 local tau = math.pi * 2
 
-local options = {
+local lfo = {}
+
+lfo.options = {
   lfotypes = {
     "sine",
     "square"
   }
 }
 
-local lfo = {}
 for i = 1, number_of_outputs do
   lfo[i] = {
-    freq = 0.000,
+    freq = 0.01,
     counter = 1,
-    waveform = options.lfotypes[2],
+    waveform = lfo.options.lfotypes[1],
     slope = 0,
     depth = 100,
     offset = 0
@@ -68,21 +69,21 @@ function lfo.init()
   for i = 1, number_of_outputs do
     params:add_separator()
     -- modulation destination
-    params:add_option(i .. "lfo_target", i .. " lfo target", lfo[i].lfo_targets, 1)
+--    params:add_option(i .. "lfo_target", i .. " lfo target", lfo[i].lfo_targets, 1)
     -- lfo shape
-    params:add_option(i .. "lfo_shape", i .. " lfo shape", options.lfotypes, 1)
-    params:set_action(i .. "lfo_shape", function(value) lfo[i].waveform = options.lfotypes[value] end)
+    params:add_option(i .. "lfo_shape", i .. " lfo shape", lfo.options.lfotypes, 1)
+    params:set_action(i .. "lfo_shape", function(value) lfo[i].waveform = lfo.options.lfotypes[value] end)
     -- lfo depth
     params:add_number(i .. "lfo_depth", i .. " lfo depth", 0, 100, 100)
     params:set_action(i .. "lfo_depth", function(value) lfo[i].depth = value end)
     -- lfo offset
-    params:add_control(i .."offset", i .. " offset", controlspec.new(-4.0, 3.0, "lin", 0.1, 0.0, ""))
-    params:set_action(i .. "offset", function(value) lfo[i].offset = value end)
-    -- lfo speed
-    params:add_control(i .. "lfo_freq", i .. " lfo freq", controlspec.new(-4.0, 25.0, "lin", 0.001, 0.000, ""))
-    params:set_action(i .. "lfo_freq", function(value) lfo[i].freq = value end)
+--    params:add_control(i .."offset", i .. " offset", controlspec.new(-4.0, 3.0, "lin", 0.1, 0.0, ""))
+--    params:set_action(i .. "offset", function(value) lfo[i].offset = value end)
+--     lfo speed
+--    params:add_control(i .. "lfo_freq", i .. " lfo freq", controlspec.new(0.01, 25.0, "lin", 0.1, 0.05, ""))
+--    params:set_action(i .. "lfo_freq", function(value) lfo[i].freq = value end)
     -- lfo on/off
-    params:add_option(i .. "lfo", i .. " lfo", {"off", "on"}, 2)
+--    params:add_option(i .. "lfo", i .. " lfo", {"off", "on"}, 1)
   end
 
   local lfo_metro = metro.init()
@@ -91,9 +92,9 @@ function lfo.init()
   lfo_metro.event = function()
     for i = 1, number_of_outputs do
       local slope
-      if params:get(i .. "lfo") == 1 then
-        break
-      elseif lfo[i].waveform == "sine" then
+--      if params:get(i .. "lfo") == 1 then
+--        break
+      if lfo[i].waveform == "sine" then
         slope = make_sine(i)
       elseif lfo[i].waveform == "square" then
         slope = make_square(i)

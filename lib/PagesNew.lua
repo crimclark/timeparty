@@ -115,6 +115,12 @@ function Pages:update_param(delta)
   activeSeq:redraw()
 end
 
+local SCREEN_LEVELS = {
+  DIMMER = 1,
+  DIM = 4,
+  BRIGHT = 15,
+}
+
 function Pages:draw_title(index, margin)
   local page = self[index]
 
@@ -122,10 +128,18 @@ function Pages:draw_title(index, margin)
   screen.move(6, 34)
   screen.font_size(50)
   screen.font_face(1)
-  screen.level(15)
+  screen.level(SCREEN_LEVELS.BRIGHT)
   screen.text(index)
-  screen.font_face(9)
+
+  screen.font_size(9)
+  screen.level(params:get('freeze') == 2 and SCREEN_LEVELS.DIMMER or SCREEN_LEVELS.BRIGHT)
+  screen.move(3, 60)
+  screen.font_face(17)
+  screen.text('Freeze')
+
   screen.font_size(11)
+  screen.font_face(9)
+  screen.level(SCREEN_LEVELS.BRIGHT)
   screen.move(margin, 10)
   screen.text(page.title)
 end
@@ -133,14 +147,14 @@ end
 function Pages:draw_param(name, value, index, margin, lineHeight)
   local activeIndex = self:active_index()
   local page = self[activeIndex]
-  screen.level(4)
+  screen.level(SCREEN_LEVELS.DIM)
   screen.move(margin, lineHeight)
 
   if page.selectedParam == index then screen.level(15) end
   screen.text(name .. ': ')
   screen.move(95, lineHeight)
   screen.text(value)
-  screen.level(4)
+  screen.level(SCREEN_LEVELS.DIM)
 end
 
 function Pages:redraw()
