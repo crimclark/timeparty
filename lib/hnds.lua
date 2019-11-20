@@ -20,7 +20,7 @@ local options = {
 local lfo = {}
 for i = 1, number_of_outputs do
   lfo[i] = {
-    freq = 0.01,
+    freq = 0.000,
     counter = 1,
     waveform = options.lfotypes[2],
     slope = 0,
@@ -79,7 +79,7 @@ function lfo.init()
     params:add_control(i .."offset", i .. " offset", controlspec.new(-4.0, 3.0, "lin", 0.1, 0.0, ""))
     params:set_action(i .. "offset", function(value) lfo[i].offset = value end)
     -- lfo speed
-    params:add_control(i .. "lfo_freq", i .. " lfo freq", controlspec.new(0.01, 25.0, "lin", 0.1, 0.05, ""))
+    params:add_control(i .. "lfo_freq", i .. " lfo freq", controlspec.new(-4.0, 25.0, "lin", 0.001, 0.000, ""))
     params:set_action(i .. "lfo_freq", function(value) lfo[i].freq = value end)
     -- lfo on/off
     params:add_option(i .. "lfo", i .. " lfo", {"off", "on"}, 2)

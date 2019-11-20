@@ -1,7 +1,7 @@
 local FXSequencer = {}
 FXSequencer.__index = FXSequencer
 
-local buttonLevels = { BRIGHT = 15, MEDIUM = 7, DIM = 3 }
+local buttonLevels = { BRIGHT = 14, MEDIUM = 8, LOW_MED = 5, DIM = 3 }
 
 function FXSequencer.new(options)
   local seq = {
@@ -16,10 +16,10 @@ function FXSequencer.new(options)
     minVal = options.minVal or 0,
     maxVal = options.maxVal or 1,
     rate = 1.0,
-    steps = {},
+    steps = {{y = 8, on = 1}},
+    queuedSteps = {},
     positionX = 1,
---    positionY = 8,
-    prevPositionX = 0,
+    prevPositionX = 1,
     metro = metro.init(),
     held = {x = 0, y = 0 },
     directions = {'forward', 'reverse', 'pendulum', 'random', 'drunk'},
@@ -42,9 +42,14 @@ function FXSequencer:init()
     if z == 1 then
       if self.held.y == y then
         local first,last = math.min(x, self.held.x), math.max(x, self.held.x)
-        for i=first,last do self.steps[i] = {y = y, on = 1} end
+        for i=first,last do
+          self.steps[i] = {y = y, on = 1}
+        end
       else
-        self.steps[x] = {y = y, on = 1}
+        local step = self.steps[x]
+        local on = (step == nil or step.on == 0 or y ~= step.y) and 1 or 0
+        self.steps[x] = {y = y, on = on }
+        self:add_queued_step(x, y)
       end
       self.held = {x = x, y = y}
       self:redraw()
@@ -73,102 +78,86 @@ end
 function FXSequencer:count()
   return function()
     local pos = self.positionX
-    self.positionX = self:get_next_step()
+    self.positionX = self:get_next_step(pos)
     self.prevPositionX = pos
+    local step = self.steps[self.positionX]
+    if step ~= nil and step.on == 1 then
+      self.set_fx(self.modVals[step.y], self.valOffset)
+    end
     self:redraw()
---    self.set_fx(self.currentVal, self.valOffset)
   end
 end
 
-function FXSequencer:forward()
-  return self.positionX % self:length() + 1
+function FXSequencer:forward(x)
+  return x % self:length() + 1
 end
 
-function FXSequencer:reverse()
-  return (self.positionX - 2) % self:length() + 1
+function FXSequencer:reverse(x)
+  return (x - 2) % self:length() + 1
 end
 
 function FXSequencer:pendulum()
   if self.positionX == 1 or (self.positionX > self.prevPositionX and self.positionX < self:length()) then
-    return self:forward()
+    return self:forward(self.positionX)
   end
-  return self:reverse()
+  return self:reverse(self.positionX)
 end
 
 function FXSequencer:drunk()
-  return math.random(0, 1) == 0 and self:forward() or self:reverse()
+  return math.random(0, 1) == 0 and self:forward(self.positionX) or self:reverse(self.positionX)
 end
 
-function FXSequencer:get_next_step()
+function FXSequencer:get_next_step(x)
   local dirs = {
-    self:forward(),
-    self:reverse(),
-    self:pendulum(),
+    self:forward(x),
+    self:reverse(x),
+    self:pendulum(x),
     math.random(16),
-    self:drunk(),
+    self:drunk(x),
   }
   return dirs[self.direction]
 end
 
---function FXSequencer:redraw()
---  local visible = self.visible
---
---  if visible then self.grid:all(0) end
---
---  for i = 1, self:length() do
---    local y = self.steps[i]
---    -- count down from bottom row 8 to current height
---    for j = self.grid.rows, y, -1 do
---
---      if visible then self.grid:led(i, j, buttonLevels.MEDIUM) end
---
---      if i == self.positionX then
---        self.currentVal = self.modVals[y]
-----        self.set_fx(self.currentVal, self.valOffset)
---
---        if visible then self.grid:led(i, j, buttonLevels.BRIGHT) end
---      end
---    end
---  end
---
---  if self.visible then self.grid:refresh() end
---end
 function FXSequencer:redraw()
   local visible = self.visible
-
   if visible then self.grid:all(0) end
 
-  for i = 1, self:length() do
-    local y = self.steps[i].y
-    -- count down from bottom row 8 to current height
-    for j = self.grid.rows, y, -1 do
-
-    if visible then self.grid:led(i, j, buttonLevels.DIM) end
-    if visible and self.steps[i].on ~= 0 then self.grid:led(i, y, buttonLevels.MEDIUM) end
-
-    end
-      if i == self.positionX then
-        self.currentVal = self.modVals[y]
-        if visible then
-          if self.steps[i].on == 1 then
-            self.grid:led(i, y, buttonLevels.BRIGHT)
-            self.positionY = y
-          else
-            self.grid:led(i, y, 5)
-          end
+  for i=1, self:length() do
+    local currentStep = self.steps[i]
+    if i == self.positionX then -- if on current positionX
+      if currentStep ~= nil and currentStep.on == 1 then
+        self.grid:led(i, currentStep.y, buttonLevels.BRIGHT)
+      elseif self.queuedSteps[i] ~= nil then
+        local prevStep = self.steps[self.prevPositionX]
+        if prevStep.on == 1 and prevStep.y ~= self.queuedSteps[i].y then
+          self.queuedSteps[i].y = prevStep.y
         end
-
-        --        self.set_fx(self.currentVal, self.valOffset)
-
+        self.steps[i] = self.queuedSteps[i]
+        self.grid:led(i, self.steps[i].y, buttonLevels.LOW_MED)
+        self:add_queued_step(i, self.steps[i].y)
+      elseif currentStep ~= nil then
+        self.grid:led(i, currentStep.y, buttonLevels.LOW_MED)
       end
+    else -- other positions
+      if currentStep ~= nil and currentStep.on == 1 then
+        self.grid:led(i, currentStep.y, buttonLevels.MEDIUM)
+      elseif currentStep ~= nil then
+        self.grid:led(i, currentStep.y, buttonLevels.DIM)
+      end
+    end
   end
-  if self.visible then self.grid:refresh() end
+  if visible then self.grid:refresh() end
+end
+
+function FXSequencer:add_queued_step(currentX, currentY)
+  local nextX = self:get_next_step(currentX)
+  if self.steps[nextX] == nil or self.steps[nextX].on == 0 then
+    self.queuedSteps[nextX] = {y = currentY, on = 0}
+  end
 end
 
 function FXSequencer:init_steps()
-  for i = 1, self.grid.cols do
-    table.insert(self.steps, {y = 8, on = 0})
-  end
+  self:add_queued_step(1, 8)
 end
 
 return FXSequencer

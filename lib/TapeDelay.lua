@@ -16,7 +16,7 @@ function sc.init()
   softcut.loop_start(1, 1)
   softcut.loop_end(1, 2)
   softcut.loop(1, 1)
-  softcut.fade_time(1, 0.1)
+  softcut.fade_time(1, 0.25)
   -- turn off record to "hold"?
   softcut.rec(1, 1)
   softcut.rec_level(1, 1)

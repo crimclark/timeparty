@@ -77,7 +77,7 @@ function SequencersContainer.new(options)
       position = FXSequencer.new{
         grid = GRID,
         -- todo: update these
-        modVals = {0, 0, 0, 0, 0, 0, 0, 0},
+        modVals = {1, 1, 1, 1, 0, 0, 0, 0},
         set_fx = function(value)
 --          local newPos = value - 0.125 + 1
           softcut.position(voice, value)
