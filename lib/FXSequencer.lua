@@ -126,22 +126,27 @@ function FXSequencer:redraw()
   for i=1, self:length() do
     local currentStep = self.steps[i]
     if i == self.positionX then -- if on current positionX
+      -- active highlighted step
       if currentStep ~= nil and currentStep.on == 1 then
         self.activeY = currentStep.y
         self.grid:led(i, currentStep.y, buttonLevels.BRIGHT)
+      -- highlighted inactive
       elseif self.queuedSteps[i] ~= nil then
         if self.activeY ~= self.queuedSteps[i].y then
+          -- update queued step
           self.queuedSteps[i].y = self.activeY
         end
+        -- overwrite step with current queued step and draw
         self.steps[i] = self.queuedSteps[i]
         self.grid:led(i, self.steps[i].y, buttonLevels.LOW_MED)
+        -- add next queued step
         self:add_queued_step(i, self.steps[i].y)
-      elseif currentStep ~= nil then
-        self.grid:led(i, currentStep.y, buttonLevels.LOW_MED)
       end
-    else -- other positions
+    else
+      -- if step is on but not highlighted
       if currentStep ~= nil and currentStep.on == 1 then
         self.grid:led(i, currentStep.y, buttonLevels.MEDIUM)
+      -- if step is off and not highlighted
       elseif currentStep ~= nil then
         self.grid:led(i, currentStep.y, buttonLevels.DIM)
       end
