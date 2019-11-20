@@ -19,6 +19,7 @@ function FXSequencer.new(options)
     steps = {{y = 8, on = 1}},
     queuedSteps = {},
     positionX = 1,
+    activeY = 8,
     prevPositionX = 1,
     metro = metro.init(),
     held = {x = 0, y = 0 },
@@ -126,11 +127,11 @@ function FXSequencer:redraw()
     local currentStep = self.steps[i]
     if i == self.positionX then -- if on current positionX
       if currentStep ~= nil and currentStep.on == 1 then
+        self.activeY = currentStep.y
         self.grid:led(i, currentStep.y, buttonLevels.BRIGHT)
       elseif self.queuedSteps[i] ~= nil then
-        local prevStep = self.steps[self.prevPositionX]
-        if prevStep.on == 1 and prevStep.y ~= self.queuedSteps[i].y then
-          self.queuedSteps[i].y = prevStep.y
+        if self.activeY ~= self.queuedSteps[i].y then
+          self.queuedSteps[i].y = self.activeY
         end
         self.steps[i] = self.queuedSteps[i]
         self.grid:led(i, self.steps[i].y, buttonLevels.LOW_MED)
