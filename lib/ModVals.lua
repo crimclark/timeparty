@@ -1,6 +1,17 @@
 local ModVals = {}
 local MusicUtil = require "musicutil"
 
+local function map(tbl, cb)
+  local new = {}
+  for _,v in ipairs(tbl) do
+    table.insert(new, cb(v))
+  end
+  return new
+end
+
+local function divide(v) return v/2 end
+local function mult_by_4(v) return v*4 end
+
 function ModVals.new(grid)
   local create_beat_divisions = function(grid, initial)
     local next = {initial[1], initial[2], initial[3]}
@@ -49,7 +60,7 @@ function ModVals.new(grid)
     equalDivisions = create_equal_divisions(grid),
     major = MusicUtil.intervals_to_ratios({12,11,9,7,5,4,2,0}),
     minor = MusicUtil.intervals_to_ratios({12,10,8,7,5,3,2,0}),
-    perfect = MusicUtil.intervals_to_ratios({29,24,19,17,12,7,5,0}),
+    perfect = map(MusicUtil.intervals_to_ratios({29,24,19,17,12,7,5,0}), divide),
 }
 end
 

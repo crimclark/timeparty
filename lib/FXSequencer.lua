@@ -9,6 +9,7 @@ function FXSequencer.new(options)
     modVals = options.modVals,
     set_fx = options.set_fx,
     visible = options.visible or false,
+    inactive = options.inactive or false,
     direction = 1,
     currentVal = 1,
     lengthOffset = 0,
@@ -61,7 +62,7 @@ function FXSequencer:init()
 end
 
 function FXSequencer:update_tempo(bpm)
-  self.metro.time = 60 / bpm / self.rate
+  self.metro.time = 60 / bpm
 end
 
 function FXSequencer:set_length_offset(delta)
@@ -162,6 +163,8 @@ function FXSequencer:add_queued_step(currentX, currentY)
 end
 
 function FXSequencer:init_steps()
+  local on = self.inactive == true and 0 or 1
+  self.steps[1] = {y = 8, on = on}
   self:add_queued_step(1, 8)
 end
 

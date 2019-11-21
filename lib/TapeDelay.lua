@@ -1,7 +1,7 @@
 local sc = {}
 
 function sc.init()
-  audio.level_monitor(0)
+--  audio.level_monitor(0)
   audio.level_cut(1.0)
   audio.level_adc_cut(1)
   audio.level_eng_cut(1)

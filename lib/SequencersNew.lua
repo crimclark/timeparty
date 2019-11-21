@@ -9,7 +9,11 @@ function calculate_rate(bpm, beatDivision)
   return (bpm / 60) * beatDivision
 end
 
-local rate = 1
+local state = {
+  rate = 1,
+  loop_start = 1,
+  loop_end = 2,
+}
 
 function SequencersContainer.new(options)
   local GRID = options.GRID
@@ -21,7 +25,8 @@ function SequencersContainer.new(options)
         grid = GRID,
         modVals = {0.375, 0.5, 0.666, 0.75, 1, 1.333, 1.5, 2},
         set_fx = function(value, shiftAmt)
-          softcut.loop_end(voice, (value / shiftAmt) + 1)
+          state.loop_end = (value / shiftAmt) + state.loop_start
+          softcut.loop_end(voice, state.loop_end)
         end,
         visible = true,
       },
@@ -32,9 +37,9 @@ function SequencersContainer.new(options)
         set_fx = function(value, shiftAmt)
           local newRate = calculate_rate(params:get('bpm'), value * shiftAmt)
           local truncated = math.floor(newRate * 100) / 100
-          if truncated ~= math.abs(rate) then
-            rate = truncated
-            softcut.rate(voice, math.min(rate, 65))
+          if truncated ~= math.abs(state.rate) then
+            state.rate = truncated
+            softcut.rate(voice, math.min(state.rate, 65))
           end
         end,
       },
@@ -60,17 +65,21 @@ function SequencersContainer.new(options)
         grid = GRID,
         modVals = {8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625},
         set_fx = function(value)
-          params:set('autopan_freq', value * (params:get('bpm')/120))
+          params:set('autopan_freq', value * (params:get('bpm') / 120))
         end,
       },
 
       position = FXSequencer.new{
         grid = GRID,
         -- todo: update these
-        modVals = {1, 1, 1, 1, 0, 0, 0, 0},
+        modVals = {8, 7, 6, 5, 4, 3, 2, 1},
+        inactive = true,
         set_fx = function(value)
---          local newPos = value - 0.125 + 1
-          softcut.position(voice, value)
+          local loopLn = state.loop_end - state.loop_start
+          local div = loopLn / 8
+          local pos = (value * div) - div + state.loop_start
+          print(pos)
+          softcut.position(voice, pos)
         end,
       },
 
@@ -104,8 +113,8 @@ end
 
 crow.input[2].mode('change', 1, 0.05, 'rising')
 crow.input[2].change = function(s)
-  rate = -rate
-  softcut.rate(voice, rate)
+  state.rate = -state.rate
+  softcut.rate(voice, state.rate)
 end
 
 return SequencersContainer
