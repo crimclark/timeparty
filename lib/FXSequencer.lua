@@ -15,8 +15,9 @@ function FXSequencer.new(options)
     valOffset = 1,
     minVal = options.minVal or 0,
     maxVal = options.maxVal or 1,
-    rate = 1.0,
-    steps = {{y = 8, on = 1}},
+    div = 1,
+    divCount = 1,
+    steps = {},
     queuedSteps = {},
     positionX = 1,
     activeY = 8,
@@ -63,11 +64,6 @@ function FXSequencer:update_tempo(bpm)
   self.metro.time = 60 / bpm / self.rate
 end
 
-function FXSequencer:update_rate(val)
-  self.rate = val
-  self:update_tempo(params:get('bpm'))
-end
-
 function FXSequencer:set_length_offset(delta)
   self.lengthOffset = util.clamp(self.lengthOffset - delta, 0, self.grid.cols - 1)
 end
@@ -78,14 +74,17 @@ end
 
 function FXSequencer:count()
   return function()
-    local pos = self.positionX
-    self.positionX = self:get_next_step(pos)
-    self.prevPositionX = pos
-    local step = self.steps[self.positionX]
-    if step ~= nil and step.on == 1 then
-      self.set_fx(self.modVals[step.y], self.valOffset)
+    self.divCount = self.divCount % self.div + 1
+    if self.divCount == 1 then
+      local pos = self.positionX
+      self.positionX = self:get_next_step(pos)
+      self.prevPositionX = pos
+      local step = self.steps[self.positionX]
+      if step ~= nil and step.on == 1 then
+        self.set_fx(self.modVals[step.y], self.valOffset)
+      end
+      self:redraw()
     end
-    self:redraw()
   end
 end
 

@@ -53,9 +53,8 @@ end
 local timeDivs = {0.1875, 0.25, 0.333, 0.375, 0.5, 0.667, 0.75, 1}
 timeDivs.index = #timeDivs
 
-function update_rate(seq, delta)
-  timeDivs.index = util.clamp(timeDivs.index + delta, 1, 8)
-  seq:update_rate(timeDivs[timeDivs.index])
+function update_div(seq, delta)
+  seq.div = util.clamp(seq.div + delta, 1, 16)
 end
 
 function change_length(seq, delta)
@@ -63,7 +62,6 @@ function change_length(seq, delta)
 end
 
 function change_direction(seq, delta)
---  seq.direction = util.clamp(seq.direction + delta, 1, 5)
   seq.direction = util.clamp(seq.direction + delta, 1, #seq.directions)
   print(seq.direction)
 end
@@ -76,7 +74,7 @@ function create_page(options)
   local page = {
     title = options.title,
     sequencer = options.sequencer,
-    params = { change_length, update_rate, change_direction, shift_fine },
+    params = { change_length, update_div, change_direction, shift_fine },
     selectedParam = 1,
   }
   return page
@@ -173,7 +171,7 @@ function Pages:redraw()
 -- todo: associate params with page - do this in loop
   self:draw_param('Length', seq:length(), 1, margin, lineHeight)
   lineHeight = lineHeight + inc
-  self:draw_param('Speed', seq.rate, 2, margin, lineHeight)
+  self:draw_param('Div', seq.div, 2, margin, lineHeight)
   lineHeight = lineHeight + inc
   self:draw_param('Direction', seq.directions[seq.direction], 3, margin, lineHeight)
   lineHeight = lineHeight + inc
