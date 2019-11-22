@@ -66,15 +66,15 @@ function change_direction(seq, delta)
   print(seq.direction)
 end
 
-function shift_fine(seq, delta)
-  seq.valOffset = util.clamp(seq.valOffset + delta, 1, 200)
+function shift(seq, delta)
+  seq.valOffset = util.clamp(seq.valOffset + delta, 1, 15)
 end
 
 function create_page(options)
   local page = {
     title = options.title,
     sequencer = options.sequencer,
-    params = { change_length, update_div, change_direction, shift_fine },
+    params = { change_length, update_div, change_direction, shift },
     selectedParam = 1,
   }
   return page

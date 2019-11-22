@@ -55,8 +55,8 @@ function SequencersContainer.new(options)
       cutoff = FXSequencer.new{
         grid = GRID,
         modVals = {120, 240, 480, 960, 1920, 3840, 7680, 12000},
-        set_fx = function(value)
-          params:set('filter_cutoff', value)
+        set_fx = function(value, shiftAmt)
+          params:set('filter_cutoff', util.clamp(value + shiftAmt * 100, 0, 12000))
         end,
       },
 
@@ -64,8 +64,9 @@ function SequencersContainer.new(options)
       pan = FXSequencer.new{
         grid = GRID,
         modVals = {8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625},
-        set_fx = function(value)
-          params:set('autopan_freq', value * (params:get('bpm') / 120))
+        set_fx = function(value, shiftAmt)
+          local freq =  value * ((shiftAmt * 2))  * (params:get('bpm') / 120)
+          params:set('autopan_freq', freq)
         end,
       },
 
@@ -74,20 +75,19 @@ function SequencersContainer.new(options)
         -- todo: update these
         modVals = {8, 7, 6, 5, 4, 3, 2, 1},
         inactive = true,
-        set_fx = function(value)
+        set_fx = function(value, shiftAmt)
           local loopLn = state.loop_end - state.loop_start
           local div = loopLn / 8
           local pos = (value * div) - div + state.loop_start
-          print(pos)
-          softcut.position(voice, pos)
+          softcut.position(voice, util.clamp(pos + shiftAmt / 100, state.loop_start, state.loop_end))
         end,
       },
 
       reverb = FXSequencer.new{
         grid = GRID,
         modVals = {5, 0, -5, -10, -20, -30, -40, -50},
-        set_fx = function(value)
-          audio.level_cut_rev(util.dbamp(value))
+        set_fx = function(value, shiftAmt)
+          audio.level_cut_rev(util.clamp(util.dbamp(value + shiftAmt), -50, 7))
         end,
       },
     },
