@@ -13,6 +13,10 @@ local seqContainer = include('lib/Sequencers').new(grid.connect())
 local pages = include('lib/Pages').new(seqContainer.sequencers)
 local lfo = include('lib/hnds')
 
+local crowOptions = {'off', 'clock', 'sync', 'reverse', 'freeze'}
+local toggle = {'on', 'off'}
+local rateModes = {'perfect', 'major', 'minor'}
+
 local crowClock = false
 
 local lastTapTime = 0
@@ -25,7 +29,7 @@ local function sync()
   params:set('bpm', 60/lastTapDelta)
 end
 
-local function crow_clock()
+function crow_clock()
   local crowSync = false
   for i=1,2 do
     if crowOptions[params:get('crow_input'..i)] == 'sync' then
@@ -36,19 +40,16 @@ local function crow_clock()
   if not crowSync then sync() end
 end
 
-local function toggle_freeze()
+function toggle_freeze()
   params:set('freeze', params:get('freeze') == 2 and 1 or 2)
   redraw()
 end
 
-local function toggle_reverse()
+function toggle_reverse()
   params:set('rate', -params:get('rate'))
 end
 
-local crowOptions = {'off', 'clock', 'sync', 'reverse', 'freeze'}
 local crowFunctions = {function() end, crow_clock, sync, toggle_reverse, toggle_freeze}
-local toggle = {'on', 'off'}
-local rateModes = {'perfect', 'major', 'minor'}
 
 function init()
   init_params()
