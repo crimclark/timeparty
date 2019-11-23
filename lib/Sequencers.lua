@@ -1,4 +1,5 @@
 local FXSequencer = include('timeparty/lib/FXSequencer')
+local modVals = include('timeparty/lib/modVals')
 
 local voice = 1
 
@@ -14,10 +15,7 @@ local state = {
   loop_end = 2,
 }
 
-function SequencersContainer.new(options)
-  local GRID = options.GRID
-  local modVals = options.modVals
-
+function SequencersContainer.new(GRID)
   local container = {
     sequencers = {
       time = FXSequencer.new{
