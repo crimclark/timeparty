@@ -8,7 +8,7 @@
 -- K2 : Freeze
 --
 
-local TapeDelay = include('lib/TapeDelay')
+local delay = include('lib/delay')
 local seqContainer = include('lib/Sequencers').new()
 local pages = include('lib/Pages').new(seqContainer.sequencers)
 local lfo = include('lib/hnds')
@@ -55,7 +55,7 @@ function init()
   init_params()
   lfo[1].lfo_targets = {'pan'}
   lfo.init()
-  TapeDelay.init()
+  delay.init()
   pages:init()
   seqContainer:bang()
   seqContainer:start()
