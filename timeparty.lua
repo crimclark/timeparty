@@ -11,9 +11,9 @@
 local TapeDelay = include('lib/TapeDelay')
 local GRID = grid.connect()
 local modVals = include('lib/ModVals').new(GRID)
-local container = include('lib/SequencersNew').new{GRID = GRID, modVals = modVals}
+local container = include('lib/Sequencers').new{GRID = GRID, modVals = modVals}
 local sequencers = container.sequencers
-local Pages = include('lib/PagesNew').new(sequencers)
+local Pages = include('lib/Pages').new(sequencers)
 local lfo = include('lib/hnds')
 
 function init()

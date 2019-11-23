@@ -10,7 +10,6 @@ local function map(tbl, cb)
 end
 
 local function divide(v) return v/2 end
-local function mult_by_4(v) return v*4 end
 
 function ModVals.new(grid)
   local create_beat_divisions = function(grid, initial)
@@ -53,9 +52,7 @@ function ModVals.new(grid)
   end
 
   return {
---    beatDivisions = create_beat_divisions(grid),
     timeVals = create_beat_divisions(grid, {1.333, 1.5, 2}),
---    rateVals = create_beat_divisions(grid, {0.375, 0.75, 1}),
     rateVals = reverse_table(beat_divisions(grid)),
     equalDivisions = create_equal_divisions(grid),
     major = map(MusicUtil.intervals_to_ratios({12,11,9,7,5,4,2,0}), divide),
