@@ -16,8 +16,7 @@ function sc.init()
   softcut.loop_start(1, 1)
   softcut.loop_end(1, 2)
   softcut.loop(1, 1)
-  softcut.fade_time(1, 0.25)
-  -- turn off record to "hold"?
+  softcut.fade_time(1, 0.01)
   softcut.rec(1, 1)
   softcut.rec_level(1, 1)
   softcut.pre_level(1, 0.75)
@@ -32,12 +31,6 @@ function sc.init()
   softcut.post_filter_hp(1, 0)
   softcut.post_filter_bp(1, 0)
   softcut.post_filter_br(1, 0)
-
-  --  softcut.filter_dry(1, 0.125);
---  softcut.filter_fc(1, 1200);
---  softcut.filter_lp(1, 0);
---  softcut.filter_bp(1, 1.0);
---  softcut.filter_rq(1, 2.0);
 
   softcut.pan_slew_time(1, 0.1)
 end

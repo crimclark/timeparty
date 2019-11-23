@@ -18,11 +18,12 @@ local lfo = include('lib/hnds')
 
 function init()
   init_params()
-  TapeDelay.init()
-  Pages:init()
---  container:start()
   lfo[1].lfo_targets = {'pan'}
   lfo.init()
+  TapeDelay.init()
+  Pages:init()
+  container:bang()
+--  container:start()
   local t = 0 -- last tap time
   local dt = 1 -- last tapped delta
 

@@ -111,6 +111,14 @@ function SequencersContainer:start()
 end
 
 
+function SequencersContainer:bang()
+  for _, seq in pairs(self.sequencers) do
+    if seq.steps[1].on == 1 then
+      seq.set_fx(seq.modVals[8], seq.valOffset)
+    end
+  end
+end
+
 crow.input[2].mode('change', 1, 0.05, 'rising')
 crow.input[2].change = function(s)
   state.rate = -state.rate

@@ -67,7 +67,7 @@ function change_direction(seq, delta)
 end
 
 function shift(seq, delta)
-  seq.valOffset = util.clamp(seq.valOffset + delta, 1, 15)
+  seq.valOffset = util.clamp(seq.valOffset + delta, 1, 20)
 end
 
 function create_page(options)
