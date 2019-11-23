@@ -67,15 +67,15 @@ end
 
 function lfo.init()
   for i = 1, number_of_outputs do
-    params:add_separator()
+--    params:add_separator()
     -- modulation destination
 --    params:add_option(i .. "lfo_target", i .. " lfo target", lfo[i].lfo_targets, 1)
     -- lfo shape
-    params:add_option(i .. "lfo_shape", i .. " lfo shape", lfo.options.lfotypes, 1)
-    params:set_action(i .. "lfo_shape", function(value) lfo[i].waveform = lfo.options.lfotypes[value] end)
+--    params:add_option(i .. "lfo_shape", i .. " lfo shape", lfo.options.lfotypes, 1)
+--    params:set_action(i .. "lfo_shape", function(value) lfo[i].waveform = lfo.options.lfotypes[value] end)
     -- lfo depth
-    params:add_number(i .. "lfo_depth", i .. " lfo depth", 0, 100, 100)
-    params:set_action(i .. "lfo_depth", function(value) lfo[i].depth = value end)
+--    params:add_number(i .. "lfo_depth", i .. " lfo depth", 0, 100, 100)
+--    params:set_action(i .. "lfo_depth", function(value) lfo[i].depth = value end)
     -- lfo offset
 --    params:add_control(i .."offset", i .. " offset", controlspec.new(-4.0, 3.0, "lin", 0.1, 0.0, ""))
 --    params:set_action(i .. "offset", function(value) lfo[i].offset = value end)

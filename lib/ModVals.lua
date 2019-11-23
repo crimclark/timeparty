@@ -58,8 +58,8 @@ function ModVals.new(grid)
 --    rateVals = create_beat_divisions(grid, {0.375, 0.75, 1}),
     rateVals = reverse_table(beat_divisions(grid)),
     equalDivisions = create_equal_divisions(grid),
-    major = MusicUtil.intervals_to_ratios({12,11,9,7,5,4,2,0}),
-    minor = MusicUtil.intervals_to_ratios({12,10,8,7,5,3,2,0}),
+    major = map(MusicUtil.intervals_to_ratios({12,11,9,7,5,4,2,0}), divide),
+    minor = map(MusicUtil.intervals_to_ratios({12,10,8,7,5,3,2,0}), divide),
     perfect = map(MusicUtil.intervals_to_ratios({29,24,19,17,12,7,5,0}), divide),
 }
 end

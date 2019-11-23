@@ -10,7 +10,6 @@ function calculate_rate(bpm, beatDivision)
 end
 
 local state = {
-  rate = 1,
   loop_start = 1,
   loop_end = 2,
 }
@@ -35,12 +34,8 @@ function SequencersContainer.new(options)
         grid = GRID,
         modVals = modVals.perfect,
         set_fx = function(value, shiftAmt)
-          local newRate = calculate_rate(params:get('bpm'), value * shiftAmt)
-          local truncated = math.floor(newRate * 100) / 100
-          if truncated ~= math.abs(state.rate) then
-            state.rate = truncated
-            softcut.rate(voice, math.min(state.rate, 65))
-          end
+          local rate = calculate_rate(params:get('bpm'), value * shiftAmt)
+          params:set('rate', math.min(rate, 65))
         end,
       },
 
@@ -119,10 +114,5 @@ function SequencersContainer:bang()
   end
 end
 
-crow.input[2].mode('change', 1, 0.05, 'rising')
-crow.input[2].change = function(s)
-  state.rate = -state.rate
-  softcut.rate(voice, state.rate)
-end
 
 return SequencersContainer

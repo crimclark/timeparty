@@ -36,6 +36,11 @@ function init()
     t = t1
     params:set('bpm', 60/dt)
   end
+  crow.input[2].mode('change', 1, 0.05, 'rising')
+  crow.input[2].change = function(s)
+--    params:set('rate', -params:get('rate'))
+    toggle_freeze()
+  end
   redraw()
 end
 
@@ -53,6 +58,8 @@ function init_params()
   params:set_action('freeze', function(i) softcut.rec(1, i - 1) end)
   params:add_control('pan', 'pan', controlspec.new(-1.0, 1.0, "lin", 0.01, 0.01, ""))
   params:set_action('pan', function(v) softcut.pan(1, v) end)
+  params:add_control("rate", "rate", controlspec.new(-65, 65, "lin", 0.01, 1, ""))
+  params:set_action("rate", function(x) softcut.rate(1, x) end)
   -- filter cut off
   params:add_control("filter_cutoff", "filter cutoff", controlspec.new(10, 12000, 'exp', 1, 12000, "Hz"))
   params:set_action("filter_cutoff", function(x) softcut.post_filter_fc(1, x) softcut.pre_filter_fc(1, x) end)
@@ -77,10 +84,6 @@ function init_params()
   -- autopan frequency
   params:add_control("autopan_freq", "autopan freq", controlspec.new(0.001, 25, "lin", 0.001, 0, ""))
   params:set_action("autopan_freq", function(value) lfo[1].freq = value end)
-  -- lfo offset
-  -- dry signal
---  params:add_control("dry_signal", "dry signal", controlspec.new(0, 0, 'lin', 0, 0, ""))
---  params:set_action("dry_signal", function(x) softcut.post_filter_dr(1, x) end)
 end
 
 function lfo.process()
@@ -98,9 +101,13 @@ function key(num, z)
   end
 
   if num == 2 and z == 1 then
-    params:set('freeze', params:get('freeze') == 2 and 1 or 2)
-    redraw()
+    toggle_freeze()
   end
+end
+
+function toggle_freeze()
+  params:set('freeze', params:get('freeze') == 2 and 1 or 2)
+  redraw()
 end
 
 function enc(num, delta)
