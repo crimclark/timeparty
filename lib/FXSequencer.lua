@@ -11,11 +11,8 @@ function FXSequencer.new(options)
     visible = options.visible or false,
     inactive = options.inactive or false,
     direction = 1,
-    currentVal = 1,
     lengthOffset = 0,
     valOffset = 1,
-    minVal = options.minVal or 0,
-    maxVal = options.maxVal or 1,
     div = 1,
     divCount = 1,
     steps = {},
@@ -24,7 +21,7 @@ function FXSequencer.new(options)
     activeY = 8,
     prevPositionX = 1,
     metro = metro.init(),
-    held = {x = 0, y = 0 },
+    held = {x = 0, y = 0},
     directions = {'forward', 'reverse', 'pendulum', 'random', 'drunk'},
   }
   setmetatable(seq, FXSequencer)
