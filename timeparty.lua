@@ -11,9 +11,8 @@
 local TapeDelay = include('lib/TapeDelay')
 local GRID = grid.connect()
 local modVals = include('lib/ModVals').new(GRID)
-local container = include('lib/Sequencers').new{GRID = GRID, modVals = modVals}
-local sequencers = container.sequencers
-local Pages = include('lib/Pages').new(sequencers)
+local seqContainer = include('lib/Sequencers').new{GRID = GRID, modVals = modVals}
+local pages = include('lib/Pages').new(seqContainer.sequencers)
 local lfo = include('lib/hnds')
 
 local crowClock = false
@@ -31,11 +30,11 @@ end
 local function crow_clock()
   local crowSync = false
   for i=1,2 do
-    if params:get('crow_input'..i) == 3 then
+    if crowOptions[params:get('crow_input'..i)] == 'sync' then
       crowSync = true
     end
   end
-  for _, v in pairs(sequencers) do v:count()() end
+  seqContainer:count()
   if not crowSync then sync() end
 end
 
@@ -58,9 +57,9 @@ function init()
   lfo[1].lfo_targets = {'pan'}
   lfo.init()
   TapeDelay.init()
-  Pages:init()
-  container:bang()
-  container:start()
+  pages:init()
+  seqContainer:bang()
+  seqContainer:start()
 
   for i=1,2 do
     crow.input[i].mode('change', 1, 0.05, 'rising')
@@ -81,16 +80,16 @@ function update_crow_input()
 
   if hasCrowClock and not crowClock then
     crowClock = true
-    container:stop()
+    seqContainer:stop()
   elseif crowClock then
     crowClock = false
-    container:start()
+    seqContainer:start()
   end
 end
 
 function init_params()
   params:add_number('bpm', 'bpm', 20, 999, 120)
-  params:set_action('bpm', function() container:update_tempo() end)
+  params:set_action('bpm', function() seqContainer:update_tempo() end)
   for i=1,2 do
     params:add_option('crow_input'..i, 'crow input '..i, crowOptions, 1)
     params:set_action('crow_input'..i, update_crow_input)
@@ -98,7 +97,7 @@ function init_params()
   params:add_control("rate", "rate", controlspec.new(-65, 65, "lin", 0.01, 1, ""))
   params:set_action("rate", function(x) softcut.rate(1, x) end)
   params:add_option('rate_mode', 'rate mode', rateModes, 1)
-  params:set_action('rate_mode', function(i) sequencers.rate.modVals = modVals[rateModes[i]] end)
+  params:set_action('rate_mode', function(i) seqContainer:update_rate_mode(rateModes[i]) end)
   params:add_control('rate_slew', 'rate slew', controlspec.new(0, 1, "lin", 0, 0.1, ""))
   params:set_action('rate_slew', function() softcut.rate_slew_time(1, params:get('rate_slew')) end)
   params:add_option('freeze', 'freeze', toggle, 2)
@@ -128,12 +127,12 @@ function lfo.process()
 end
 
 function redraw()
-  Pages:redraw()
+  pages:redraw()
 end
 
 function key(num, z)
   if num == 3 and z == 1 then
-    Pages:update_selected_param()
+    pages:update_selected_param()
     redraw()
   end
 
@@ -144,12 +143,12 @@ end
 
 function enc(num, delta)
   if num == 2 then
-    local newIndex = Pages:active_index() + util.clamp(delta, -1, 1)
-    Pages:new_page(newIndex)
+    local newIndex = pages:active_index() + util.clamp(delta, -1, 1)
+    pages:new_page(newIndex)
   end
 
   if num == 3 then
-    Pages:update_param(delta)
+    pages:update_param(delta)
     redraw()
   end
 end

@@ -109,6 +109,14 @@ function SequencersContainer:stop()
   for _, seq in pairs(self.sequencers) do seq.metro:stop() end
 end
 
+function SequencersContainer:count()
+  for _, seq in pairs(self.sequencers) do seq:count()() end
+end
+
+function SequencersContainer:update_rate_mode(mode)
+  self.sequencers.rate.modVals = modVals[mode]
+end
+
 function SequencersContainer:bang()
   for _, seq in pairs(self.sequencers) do
     if seq.steps[1].on == 1 then
@@ -116,6 +124,5 @@ function SequencersContainer:bang()
     end
   end
 end
-
 
 return SequencersContainer
