@@ -105,6 +105,9 @@ function SequencersContainer:start()
   for _, v in pairs(self.sequencers) do v:start() end
 end
 
+function SequencersContainer:stop()
+  for _, v in pairs(self.sequencers) do v:stop() end
+end
 
 function SequencersContainer:bang()
   for _, seq in pairs(self.sequencers) do
