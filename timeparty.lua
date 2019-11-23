@@ -18,8 +18,8 @@ local lfo = include('lib/hnds')
 
 local crowClock = false
 
-local lastTapTime = 0 -- last tap time
-local lastTapDelta = 1 -- last tapped delta
+local lastTapTime = 0
+local lastTapDelta = 1
 
 local function sync()
   local t = util.time()
@@ -66,24 +66,35 @@ function init()
     crow.input[i].mode('change', 1, 0.05, 'rising')
     crow.input[i].change = function(s)
       local fnIdx = params:get('crow_input'..i)
-      if crowClock == true and fnIdx ~= 2 then
-        crowClock = false
-        container:start()
-      elseif fnIdx == 2 then
-        crowClock = true
-        for _, v in pairs(sequencers) do v.metro:stop() end
-      end
       crowFunctions[fnIdx]()
     end
   end
+
   redraw()
 end
 
+function update_crow_input()
+  local hasCrowClock = false
+  for i=1,2 do
+    if crowOptions[params:get('crow_input'..i)] == 'clock' then hasCrowClock = true end
+  end
+
+  if hasCrowClock and not crowClock then
+    crowClock = true
+    container:stop()
+  elseif crowClock then
+    crowClock = false
+    container:start()
+  end
+end
+
 function init_params()
-  params:add_number('bpm', 'bpm', 40, 240, 120)
+  params:add_number('bpm', 'bpm', 20, 999, 120)
   params:set_action('bpm', function() container:update_tempo() end)
-  params:add_option('crow_input1', 'crow input 1', crowOptions, 1)
-  params:add_option('crow_input2', 'crow input 2', crowOptions, 1)
+  for i=1,2 do
+    params:add_option('crow_input'..i, 'crow input '..i, crowOptions, 1)
+    params:set_action('crow_input'..i, update_crow_input)
+  end
   params:add_control("rate", "rate", controlspec.new(-65, 65, "lin", 0.01, 1, ""))
   params:set_action("rate", function(x) softcut.rate(1, x) end)
   params:add_option('rate_mode', 'rate mode', rateModes, 1)
@@ -130,7 +141,6 @@ function key(num, z)
     toggle_freeze()
   end
 end
-
 
 function enc(num, delta)
   if num == 2 then

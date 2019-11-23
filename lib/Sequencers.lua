@@ -96,17 +96,17 @@ function SequencersContainer.new(options)
 end
 
 function SequencersContainer:update_tempo()
-  for _, v in pairs(self.sequencers) do
-    v:update_tempo(params:get('bpm'))
+  for _, seq in pairs(self.sequencers) do
+    seq:update_tempo(params:get('bpm'))
   end
 end
 
 function SequencersContainer:start()
-  for _, v in pairs(self.sequencers) do v:start() end
+  for _, seq in pairs(self.sequencers) do seq:start() end
 end
 
 function SequencersContainer:stop()
-  for _, v in pairs(self.sequencers) do v:stop() end
+  for _, seq in pairs(self.sequencers) do seq.metro:stop() end
 end
 
 function SequencersContainer:bang()

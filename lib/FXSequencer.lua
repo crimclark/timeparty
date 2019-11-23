@@ -113,7 +113,7 @@ function FXSequencer:get_next_step(x)
     self:forward(x),
     self:reverse(x),
     self:pendulum(x),
-    math.random(16),
+    math.random(self:length()),
     self:drunk(x),
   }
   return dirs[self.direction]
