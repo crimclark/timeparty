@@ -9,7 +9,7 @@
 --
 
 local delay = include('lib/delay')
-local seqContainer = include('lib/Sequencers').new()
+local seqContainer = include('lib/sequencers')
 local pages = include('lib/Pages').new(seqContainer.sequencers)
 local lfo = include('lib/hnds')
 
@@ -36,7 +36,7 @@ function crow_clock()
       crowSync = true
     end
   end
-  seqContainer:count()
+  seqContainer.count()
   if not crowSync then sync() end
 end
 
@@ -57,8 +57,8 @@ function init()
   lfo.init()
   delay.init()
   pages:init()
-  seqContainer:bang()
-  seqContainer:start()
+  seqContainer.bang()
+  seqContainer.start()
 
   for i=1,2 do
     crow.input[i].mode('change', 1, 0.05, 'rising')
@@ -79,16 +79,16 @@ function update_crow_input()
 
   if hasCrowClock and not crowClock then
     crowClock = true
-    seqContainer:stop()
+    seqContainer.stop()
   elseif crowClock then
     crowClock = false
-    seqContainer:start()
+    seqContainer.start()
   end
 end
 
 function init_params()
   params:add_number('bpm', 'bpm', 20, 999, 120)
-  params:set_action('bpm', function() seqContainer:update_tempo() end)
+  params:set_action('bpm', function() seqContainer.update_tempo() end)
   for i=1,2 do
     params:add_option('crow_input'..i, 'crow input '..i, crowOptions, 1)
     params:set_action('crow_input'..i, update_crow_input)
@@ -96,7 +96,7 @@ function init_params()
   params:add_control("rate", "rate", controlspec.new(-65, 65, "lin", 0.01, 1, ""))
   params:set_action("rate", function(x) softcut.rate(1, x) end)
   params:add_option('rate_mode', 'rate mode', rateModes, 1)
-  params:set_action('rate_mode', function(i) seqContainer:update_rate_mode(rateModes[i]) end)
+  params:set_action('rate_mode', function(i) seqContainer.update_rate_mode(rateModes[i]) end)
   params:add_control('rate_slew', 'rate slew', controlspec.new(0, 1, "lin", 0, 0.1, ""))
   params:set_action('rate_slew', function() softcut.rate_slew_time(1, params:get('rate_slew')) end)
   params:add_option('freeze', 'freeze', toggle, 2)
