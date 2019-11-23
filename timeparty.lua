@@ -13,7 +13,8 @@ local seqContainer = include('lib/sequencers')
 local pages = include('lib/Pages').new(seqContainer.sequencers)
 local lfo = include('lib/hnds')
 
-local crowOptions = {'off', 'clock', 'sync', 'reverse', 'freeze'}
+local crowOptions1 = {'off', 'clock', 'reverse', 'freeze'}
+local crowOptions2 = {'off', 'sync', 'reverse', 'freeze'}
 local toggle = {'on', 'off'}
 local rateModes = {'perfect', 'major', 'minor'}
 
@@ -30,14 +31,10 @@ local function sync()
 end
 
 function crow_clock()
-  local crowSync = false
-  for i=1,2 do
-    if crowOptions[params:get('crow_input'..i)] == 'sync' then
-      crowSync = true
-    end
-  end
   seqContainer.count()
-  if not crowSync then sync() end
+  if crowOptions2[params:get('crow_input2')] ~= 'sync' then
+    sync()
+  end
 end
 
 function toggle_freeze()
@@ -49,7 +46,9 @@ function toggle_reverse()
   params:set('rate', -params:get('rate'))
 end
 
-local crowFunctions = {function() end, crow_clock, sync, toggle_reverse, toggle_freeze}
+local crowFunctionsInput1 = {function() end, crow_clock, toggle_reverse, toggle_freeze}
+local crowFunctionsInput2 = {function() end, sync, toggle_reverse, toggle_freeze}
+local crowFunctions = {crowFunctionsInput1, crowFunctionsInput2}
 
 function init()
   init_params()
@@ -64,20 +63,15 @@ function init()
     crow.input[i].mode('change', 1, 0.05, 'rising')
     crow.input[i].change = function(s)
       local fnIdx = params:get('crow_input'..i)
-      crowFunctions[fnIdx]()
+      crowFunctions[i][fnIdx]()
     end
   end
 
   redraw()
 end
 
-function update_crow_input()
-  local hasCrowClock = false
-  for i=1,2 do
-    if crowOptions[params:get('crow_input'..i)] == 'clock' then hasCrowClock = true end
-  end
-
-  if hasCrowClock and not crowClock then
+function update_crow_input1(i)
+  if crowOptions1[i] == 'clock' then
     crowClock = true
     seqContainer.stop()
   elseif crowClock then
@@ -89,10 +83,9 @@ end
 function init_params()
   params:add_number('bpm', 'bpm', 20, 999, 120)
   params:set_action('bpm', function() seqContainer.update_tempo() end)
-  for i=1,2 do
-    params:add_option('crow_input'..i, 'crow input '..i, crowOptions, 1)
-    params:set_action('crow_input'..i, update_crow_input)
-  end
+  params:add_option('crow_input1', 'crow input 1', crowOptions1, 1)
+  params:set_action('crow_input1', update_crow_input1)
+  params:add_option('crow_input2', 'crow input 2', crowOptions2, 1)
   params:add_control("rate", "rate", controlspec.new(-65, 65, "lin", 0.01, 1, ""))
   params:set_action("rate", function(x) softcut.rate(1, x) end)
   params:add_option('rate_mode', 'rate mode', rateModes, 1)
