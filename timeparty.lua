@@ -9,7 +9,7 @@
 --
 
 local TapeDelay = include('lib/TapeDelay')
-local seqContainer = include('lib/Sequencers').new(grid.connect())
+local seqContainer = include('lib/Sequencers').new()
 local pages = include('lib/Pages').new(seqContainer.sequencers)
 local lfo = include('lib/hnds')
 

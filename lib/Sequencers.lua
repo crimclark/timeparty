@@ -1,21 +1,36 @@
 local FXSequencer = include('timeparty/lib/FXSequencer')
-local modVals = include('timeparty/lib/modVals')
+local MusicUtil = require 'musicutil'
+local GRID = grid.connect()
 
 local voice = 1
 
 local SequencersContainer = {}
 SequencersContainer.__index = SequencersContainer
 
+local function map(tbl, cb)
+  local new = {}
+  for _,v in ipairs(tbl) do table.insert(new, cb(v)) end
+  return new
+end
+
+local function divide(v) return v/2 end
+
 function calculate_rate(bpm, beatDivision)
   return (bpm / 60) * beatDivision
 end
+
+local rateModes = {
+  perfect = map(MusicUtil.intervals_to_ratios({29,24,19,17,12,7,5,0}), divide),
+  major = map(MusicUtil.intervals_to_ratios({12,11,9,7,5,4,2,0}), divide),
+  minor = map(MusicUtil.intervals_to_ratios({12,10,8,7,5,3,2,0}), divide),
+}
 
 local state = {
   loop_start = 1,
   loop_end = 2,
 }
 
-function SequencersContainer.new(GRID)
+function SequencersContainer.new()
   local container = {
     sequencers = {
       time = FXSequencer.new{
@@ -30,7 +45,7 @@ function SequencersContainer.new(GRID)
 
       rate = FXSequencer.new{
         grid = GRID,
-        modVals = modVals.perfect,
+        modVals = rateModes.perfect,
         set_fx = function(value, shiftAmt)
           local rate = calculate_rate(params:get('bpm'), value * shiftAmt)
           params:set('rate', math.min(rate, 65))
@@ -39,7 +54,7 @@ function SequencersContainer.new(GRID)
 
       feedback = FXSequencer.new{
         grid = GRID,
-        modVals = modVals.equalDivisions,
+        modVals = {1.0, 0.875, 0.75, 0.625, 0.5, 0.375, 0.25, 0.125},
         set_fx = function(value, shiftAmt)
           softcut.pre_level(voice, util.clamp(value + shiftAmt / 100, 0, 1))
         end,
@@ -53,7 +68,6 @@ function SequencersContainer.new(GRID)
         end,
       },
 
-
       pan = FXSequencer.new{
         grid = GRID,
         modVals = {8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625},
@@ -65,7 +79,6 @@ function SequencersContainer.new(GRID)
 
       position = FXSequencer.new{
         grid = GRID,
-        -- todo: update these
         modVals = {8, 7, 6, 5, 4, 3, 2, 1},
         inactive = true,
         set_fx = function(value, shiftAmt)
@@ -112,7 +125,7 @@ function SequencersContainer:count()
 end
 
 function SequencersContainer:update_rate_mode(mode)
-  self.sequencers.rate.modVals = modVals[mode]
+  self.sequencers.rate.modVals = rateModes[mode]
 end
 
 function SequencersContainer:bang()
