@@ -8,10 +8,10 @@ function Pages.new(sequencers)
     create_page('T i m e', sequencers.time),
     create_page('R a t e', sequencers.rate),
     create_page('F e e d b a c k', sequencers.feedback),
-    create_page('A u t o p a n', sequencers.pan),
-    create_page('P o s i t i o n', sequencers.position),
-    create_page('R e v e r b', sequencers.reverb),
     create_page('F i l t e r C u t', sequencers.cutoff),
+    create_page('A u t o p a n', sequencers.pan),
+    create_page('R e v e r b', sequencers.reverb),
+    create_page('P o s i t i o n', sequencers.position),
   }
   local index = {}
   for i,page in ipairs(pages) do index[page] = i end
