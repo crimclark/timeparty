@@ -72,16 +72,18 @@ end
 
 function FXSequencer:count()
   return function()
-    self.divCount = self.divCount % self.div + 1
-    if self.divCount == 1 then
-      local pos = self.positionX
-      self.positionX = self:get_next_step(pos)
-      self.prevPositionX = pos
-      local step = self.steps[self.positionX]
-      if step ~= nil and step.on == 1 then
-        self.set_fx(self.modVals[step.y], self.valOffset)
+    if self.grid.cols > 0 then
+      self.divCount = self.divCount % self.div + 1
+      if self.divCount == 1 then
+        local pos = self.positionX
+        self.positionX = self:get_next_step(pos)
+        self.prevPositionX = pos
+        local step = self.steps[self.positionX]
+        if step ~= nil and step.on == 1 then
+          self.set_fx(self.modVals[step.y], self.valOffset)
+        end
+        self:redraw()
       end
-      self:redraw()
     end
   end
 end
@@ -165,7 +167,9 @@ function FXSequencer:init_steps()
   if on == 1 then
     self.set_fx(self.modVals[8], self.valOffset)
   end
-  self:add_queued_step(1, 8)
+  if self.grid.cols > 0 then
+    self:add_queued_step(1, 8)
+  end
 end
 
 return FXSequencer

@@ -44,8 +44,6 @@ function sequencersContainer:init()
       modVals = rateModes.perfect,
       set_fx = function(value, shiftAmt)
         local rate = calculate_rate(params:get('bpm'), value * shiftAmt)
-        print('setting rate')
-        state.rate = rate
         params:set('rate', math.min(rate, 65))
       end,
     },

@@ -1,12 +1,14 @@
 -- *TimeParty*
 --
--- Grid based interstellar party starter
+-- Grid based delay sequencer/interstellar party starter
 --
 -- E2 : change sequence
 -- E3 : change param
 -- K3 : select param
--- K2 : Freeze
+-- K2 : freeze
 --
+-- v1 by @crim
+-- llllllll.co/t/22837
 
 local delay = include('lib/delay')
 local seqContainer = include('lib/sequencers')
