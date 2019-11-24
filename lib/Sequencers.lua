@@ -3,7 +3,6 @@ local MusicUtil = require 'musicutil'
 local GRID = grid.connect()
 
 local voice = 1
-
 local sequencersContainer = {}
 
 local function map(tbl, cb)
@@ -13,21 +12,19 @@ local function map(tbl, cb)
 end
 
 local function divide(v) return v/2 end
+local function divide_table(tbl) return map(tbl, divide) end
 
 function calculate_rate(bpm, beatDivision)
   return (bpm / 60) * beatDivision
 end
 
 local rateModes = {
-  perfect = map(MusicUtil.intervals_to_ratios({29,24,19,17,12,7,5,0}), divide),
-  major = map(MusicUtil.intervals_to_ratios({12,11,9,7,5,4,2,0}), divide),
-  minor = map(MusicUtil.intervals_to_ratios({12,10,8,7,5,3,2,0}), divide),
+  perfect = divide_table(MusicUtil.intervals_to_ratios({29,24,19,17,12,7,5,0})),
+  major = divide_table(MusicUtil.intervals_to_ratios({12,11,9,7,5,4,2,0})),
+  minor = divide_table(MusicUtil.intervals_to_ratios({12,10,8,7,5,3,2,0})),
 }
 
-local state = {
-  loop_start = 1,
-  loop_end = 2,
-}
+local state = {loop_start = 1, loop_end = 2}
 
 local sequencers = {
   time = FXSequencer.new{
@@ -98,9 +95,7 @@ local sequencers = {
 sequencersContainer.sequencers = sequencers
 
 function sequencersContainer.update_tempo()
-  for _, seq in pairs(sequencers) do
-    seq:update_tempo(params:get('bpm'))
-  end
+  for _, seq in pairs(sequencers) do seq:update_tempo(params:get('bpm')) end
 end
 
 function sequencersContainer.start()
@@ -119,6 +114,7 @@ function sequencersContainer.update_rate_mode(mode)
   sequencers.rate.modVals = rateModes[mode]
 end
 
+-- todo: this doesnt work?
 function sequencersContainer.bang()
   for _, seq in pairs(sequencers) do
     if seq.steps[1].on == 1 then

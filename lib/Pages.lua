@@ -1,57 +1,28 @@
 local Pages = {}
 Pages.__index = Pages
 
+local SCREEN_LEVELS = {DIMMER = 1, DIM = 4, BRIGHT = 15}
+
 function Pages.new(sequencers)
-  local timePage = create_page{
-    title = 'T i m e',
-    sequencer = sequencers.time,
+  local pages = {
+    create_page('T i m e', sequencers.time),
+    create_page('R a t e', sequencers.rate),
+    create_page('F e e d b a c k', sequencers.feedback),
+    create_page('A u t o p a n', sequencers.pan),
+    create_page('P o s i t i o n', sequencers.position),
+    create_page('R e v e r b', sequencers.reverb),
+    create_page('F i l t e r C u t', sequencers.cutoff),
   }
-
-  local ratePage = create_page{
-    title = 'R a t e',
-    sequencer = sequencers.rate,
-  }
-
-  local feedbackPage = create_page{
-    title = 'F e e d b a c k',
-    sequencer = sequencers.feedback,
-  }
-
-  local panPage = create_page{
-    title = 'A u t o p a n',
-    sequencer = sequencers.pan,
-  }
-
-  local posPage = create_page{
-    title = 'P o s i t i o n',
-    sequencer = sequencers.position,
-  }
-
-  local revPage = create_page{
-    title = 'R e v e r b',
-    sequencer = sequencers.reverb,
-  }
-
-  local cutoffPage = create_page{
-    title = 'F i l t e r C u t',
-    sequencer = sequencers.cutoff,
-  }
-
-  local pages = {timePage, ratePage, feedbackPage, panPage, posPage, revPage, cutoffPage}
   local index = {}
-  for i,v in ipairs(pages) do index[v] = i end
+  for i,page in ipairs(pages) do index[page] = i end
   pages.index = index
-  pages.active = timePage
+  pages.active = pages[1]
 
   setmetatable(pages, Pages)
   setmetatable(pages, {__index = Pages})
 
   return pages
 end
-
-
-local timeDivs = {0.1875, 0.25, 0.333, 0.375, 0.5, 0.667, 0.75, 1}
-timeDivs.index = #timeDivs
 
 function update_div(seq, delta)
   seq.div = util.clamp(seq.div + delta, 1, 16)
@@ -63,21 +34,29 @@ end
 
 function change_direction(seq, delta)
   seq.direction = util.clamp(seq.direction + delta, 1, #seq.directions)
-  print(seq.direction)
 end
 
 function shift(seq, delta)
   seq.valOffset = util.clamp(seq.valOffset + delta, 1, 20)
 end
 
-function create_page(options)
+function create_page(title, seq)
   local page = {
-    title = options.title,
-    sequencer = options.sequencer,
-    params = { change_length, update_div, change_direction, shift },
+    title = title,
+    sequencer = seq,
+    params = {
+      create_param('Length', function() return seq:length() end, change_length),
+      create_param('Div', function() return seq.div end, update_div),
+      create_param('Direction', function() return seq.directions[seq.direction] end, change_direction),
+      create_param('Shift', function() return seq.valOffset end, shift),
+    },
     selectedParam = 1,
   }
   return page
+end
+
+function create_param(label, get, set)
+  return {label = label, get = get, set = set}
 end
 
 function Pages:new_page(index)
@@ -98,7 +77,6 @@ function Pages:init()
   self.active.sequencer:init()
 end
 
--- todo: methods below should all be instance methods on page, not Pages
 function Pages:update_selected_param()
   local activeIndex = self:active_index()
   local page = self[activeIndex]
@@ -109,32 +87,23 @@ function Pages:update_param(delta)
   local activeIndex = self:active_index()
   local page = self[activeIndex]
   local activeSeq = self.active.sequencer
-  page.params[page.selectedParam](activeSeq, delta)
+  page.params[page.selectedParam].set(activeSeq, delta)
   activeSeq:redraw()
 end
 
-local SCREEN_LEVELS = {
-  DIMMER = 1,
-  DIM = 4,
-  BRIGHT = 15,
-}
-
 function Pages:draw_title(index, margin)
   local page = self[index]
-
   screen.clear()
   screen.move(6, 34)
   screen.font_size(50)
   screen.font_face(1)
   screen.level(SCREEN_LEVELS.BRIGHT)
   screen.text(index)
-
   screen.font_size(9)
   screen.level(params:get('freeze') == 2 and SCREEN_LEVELS.DIMMER or SCREEN_LEVELS.BRIGHT)
   screen.move(3, 60)
   screen.font_face(17)
   screen.text('Freeze')
-
   screen.font_size(11)
   screen.font_face(9)
   screen.level(SCREEN_LEVELS.BRIGHT)
@@ -147,7 +116,6 @@ function Pages:draw_param(name, value, index, margin, lineHeight)
   local page = self[activeIndex]
   screen.level(SCREEN_LEVELS.DIM)
   screen.move(margin, lineHeight)
-
   if page.selectedParam == index then screen.level(15) end
   screen.text(name .. ': ')
   screen.move(95, lineHeight)
@@ -160,22 +128,14 @@ function Pages:redraw()
   local page = self[activeIndex]
   local margin = 45;
   self:draw_title(activeIndex, margin)
-
   screen.font_size(8)
   screen.font_face(2)
-
   local lineHeight = 23
-  local inc = 10
-  local seq = page.sequencer;
-
--- todo: associate params with page - do this in loop
-  self:draw_param('Length', seq:length(), 1, margin, lineHeight)
-  lineHeight = lineHeight + inc
-  self:draw_param('Div', seq.div, 2, margin, lineHeight)
-  lineHeight = lineHeight + inc
-  self:draw_param('Direction', seq.directions[seq.direction], 3, margin, lineHeight)
-  lineHeight = lineHeight + inc
-  self:draw_param('Shift', seq.valOffset, 4, margin, lineHeight)
+  for i=1,#page.params do
+    local param = page.params[i]
+    self:draw_param(param.label, param.get(), i, margin, lineHeight)
+    lineHeight = lineHeight + 10
+  end
   screen.update()
 end
 

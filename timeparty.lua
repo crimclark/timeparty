@@ -118,9 +118,7 @@ function lfo.process()
   params:set('pan', lfo.scale(lfo[1].slope, -1.0, 1.0, -100, 100) * 0.01)
 end
 
-function redraw()
-  pages:redraw()
-end
+function redraw() pages:redraw() end
 
 function key(num, z)
   if num == 3 and z == 1 then
