@@ -12,7 +12,7 @@ local function map(tbl, cb)
   return new
 end
 
-local function divide(v) return v/2 end
+local function divide(v) return v/4 end
 local function divide_table(tbl) return map(tbl, divide) end
 
 function calculate_rate(bpm, beatDivision)
