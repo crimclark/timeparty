@@ -10,7 +10,7 @@
 
 local delay = include('lib/delay')
 local seqContainer = include('lib/sequencers')
-local pages = include('lib/Pages').new(seqContainer.sequencers)
+local Pages = include('lib/Pages')
 local lfo = include('lib/hnds')
 
 local crowOptions1 = {'off', 'clock', 'reverse', 'freeze'}
@@ -31,7 +31,7 @@ local function sync()
 end
 
 function crow_clock()
-  seqContainer.count()
+  seqContainer:count()
   if crowOptions2[params:get('crow_input2')] ~= 'sync' then
     sync()
   end
@@ -48,16 +48,18 @@ end
 
 local crowFunctionsInput1 = {function() end, crow_clock, toggle_reverse, toggle_freeze}
 local crowFunctionsInput2 = {function() end, sync, toggle_reverse, toggle_freeze}
-local crowFunctions = {crowFunctionsInput1, crowFunctionsInput2}
+local crowFunctions = {crowFunctionsInput1, crowFunctionsInput2 }
+local pages = {}
 
 function init()
   init_params()
   lfo[1].lfo_targets = {'pan'}
   lfo.init()
   delay.init()
+  seqContainer:init()
+  seqContainer:start()
+  pages = Pages.new(seqContainer.sequencers)
   pages:init()
-  seqContainer.bang()
-  seqContainer.start()
 
   for i=1,2 do
     crow.input[i].mode('change', 1, 0.05, 'rising')
@@ -73,23 +75,23 @@ end
 function update_crow_input1(i)
   if crowOptions1[i] == 'clock' then
     crowClock = true
-    seqContainer.stop()
+    seqContainer:stop()
   elseif crowClock then
     crowClock = false
-    seqContainer.start()
+    seqContainer:start()
   end
 end
 
 function init_params()
   params:add_number('bpm', 'bpm', 20, 999, 120)
-  params:set_action('bpm', function() seqContainer.update_tempo() end)
+  params:set_action('bpm', function() seqContainer:update_tempo() end)
   params:add_option('crow_input1', 'crow input 1', crowOptions1, 1)
   params:set_action('crow_input1', update_crow_input1)
   params:add_option('crow_input2', 'crow input 2', crowOptions2, 1)
   params:add_control("rate", "rate", controlspec.new(-65, 65, "lin", 0.01, 1, ""))
   params:set_action("rate", function(x) softcut.rate(1, x) end)
   params:add_option('rate_mode', 'rate mode', rateModes, 1)
-  params:set_action('rate_mode', function(i) seqContainer.update_rate_mode(rateModes[i]) end)
+  params:set_action('rate_mode', function(i) seqContainer:update_rate_mode(rateModes[i]) end)
   params:add_control('rate_slew', 'rate slew', controlspec.new(0, 1, "lin", 0, 0.1, ""))
   params:set_action('rate_slew', function() softcut.rate_slew_time(1, params:get('rate_slew')) end)
   params:add_option('freeze', 'freeze', toggle, 2)

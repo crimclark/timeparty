@@ -161,7 +161,10 @@ end
 
 function FXSequencer:init_steps()
   local on = self.inactive == true and 0 or 1
-  self.steps[1] = {y = 8, on = on}
+  self.steps[1] = {y = 8, on = on }
+  if on == 1 then
+    self.set_fx(self.modVals[8], self.valOffset)
+  end
   self:add_queued_step(1, 8)
 end
 

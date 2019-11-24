@@ -4,6 +4,7 @@ local GRID = grid.connect()
 
 local voice = 1
 local sequencersContainer = {}
+sequencersContainer.__index = sequencersContainer
 
 local function map(tbl, cb)
   local new = {}
@@ -24,103 +25,96 @@ local rateModes = {
   minor = divide_table(MusicUtil.intervals_to_ratios({12,10,8,7,5,3,2,0})),
 }
 
-local state = {loop_start = 1, loop_end = 2}
+local state = {loop_start = 1, loop_end = 2, rate = 1}
 
-local sequencers = {
-  time = FXSequencer.new{
-    grid = GRID,
-    modVals = {0.375, 0.5, 0.666, 0.75, 1, 1.333, 1.5, 2},
-    set_fx = function(value, shiftAmt)
-      state.loop_end = (value / shiftAmt) + state.loop_start
-      softcut.loop_end(voice, state.loop_end)
-    end,
-    visible = true,
-  },
+function sequencersContainer:init()
+  self.sequencers = {
+    time = FXSequencer.new{
+      grid = GRID,
+      modVals = {0.375, 0.5, 0.666, 0.75, 1, 1.333, 1.5, 2},
+      set_fx = function(value, shiftAmt)
+        state.loop_end = (value / shiftAmt) + state.loop_start
+        softcut.loop_end(voice, state.loop_end)
+      end,
+      visible = true,
+    },
 
-  rate = FXSequencer.new{
-    grid = GRID,
-    modVals = rateModes.perfect,
-    set_fx = function(value, shiftAmt)
-      local rate = calculate_rate(params:get('bpm'), value * shiftAmt)
-      params:set('rate', math.min(rate, 65))
-    end,
-  },
+    rate = FXSequencer.new{
+      grid = GRID,
+      modVals = rateModes.perfect,
+      set_fx = function(value, shiftAmt)
+        local rate = calculate_rate(params:get('bpm'), value * shiftAmt)
+        print('setting rate')
+        state.rate = rate
+        params:set('rate', math.min(rate, 65))
+      end,
+    },
 
-  feedback = FXSequencer.new{
-    grid = GRID,
-    modVals = {1.0, 0.875, 0.75, 0.625, 0.5, 0.375, 0.25, 0.125},
-    set_fx = function(value, shiftAmt)
-      softcut.pre_level(voice, util.clamp(value + shiftAmt / 100, 0, 1))
-    end,
-  },
+    feedback = FXSequencer.new{
+      grid = GRID,
+      modVals = {1.0, 0.875, 0.75, 0.625, 0.5, 0.375, 0.25, 0.125},
+      set_fx = function(value, shiftAmt)
+        softcut.pre_level(voice, util.clamp(value + shiftAmt / 100, 0, 1))
+      end,
+    },
 
-  cutoff = FXSequencer.new{
-    grid = GRID,
-    modVals = {120, 240, 480, 960, 1920, 3840, 7680, 12000},
-    set_fx = function(value, shiftAmt)
-      params:set('filter_cutoff', util.clamp(value + shiftAmt * 100, 0, 12000))
-    end,
-  },
+    cutoff = FXSequencer.new{
+      grid = GRID,
+      modVals = {120, 240, 480, 960, 1920, 3840, 7680, 12000},
+      set_fx = function(value, shiftAmt)
+        params:set('filter_cutoff', util.clamp(value + shiftAmt * 100, 0, 12000))
+      end,
+    },
 
-  pan = FXSequencer.new{
-    grid = GRID,
-    modVals = {8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625},
-    set_fx = function(value, shiftAmt)
-      local freq =  value * ((shiftAmt * 2))  * (params:get('bpm') / 120)
-      params:set('autopan_freq', freq)
-    end,
-  },
+    pan = FXSequencer.new{
+      grid = GRID,
+      modVals = {8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625},
+      set_fx = function(value, shiftAmt)
+        local freq =  value * ((shiftAmt * 2))  * (params:get('bpm') / 120)
+        params:set('autopan_freq', freq)
+      end,
+    },
 
-  position = FXSequencer.new{
-    grid = GRID,
-    modVals = {8, 7, 6, 5, 4, 3, 2, 1},
-    inactive = true,
-    set_fx = function(value, shiftAmt)
-      local loopLn = state.loop_end - state.loop_start
-      local div = loopLn / 8
-      local pos = (value * div) - div + state.loop_start
-      softcut.position(voice, util.clamp(pos + shiftAmt / 100, state.loop_start, state.loop_end))
-    end,
-  },
+    position = FXSequencer.new{
+      grid = GRID,
+      modVals = {8, 7, 6, 5, 4, 3, 2, 1},
+      inactive = true,
+      set_fx = function(value, shiftAmt)
+        local loopLn = state.loop_end - state.loop_start
+        local div = loopLn / 8
+        local pos = (value * div) - div + state.loop_start
+        softcut.position(voice, util.clamp(pos + shiftAmt / 100, state.loop_start, state.loop_end))
+      end,
+    },
 
-  reverb = FXSequencer.new{
-    grid = GRID,
-    modVals = {5, 0, -5, -10, -20, -30, -40, -50},
-    set_fx = function(value, shiftAmt)
-      audio.level_cut_rev(util.clamp(util.dbamp(value + shiftAmt), -50, 7))
-    end,
-  },
-}
-
-sequencersContainer.sequencers = sequencers
-
-function sequencersContainer.update_tempo()
-  for _, seq in pairs(sequencers) do seq:update_tempo(params:get('bpm')) end
+    reverb = FXSequencer.new{
+      grid = GRID,
+      modVals = {5, 0, -5, -10, -20, -30, -40, -50},
+      set_fx = function(value, shiftAmt)
+        audio.level_cut_rev(util.clamp(util.dbamp(value + shiftAmt), -50, 7))
+      end,
+    },
+  }
 end
 
-function sequencersContainer.start()
-  for _, seq in pairs(sequencers) do seq:start() end
+function sequencersContainer:update_tempo()
+  for _, seq in pairs(self.sequencers) do seq:update_tempo(params:get('bpm')) end
 end
 
-function sequencersContainer.stop()
-  for _, seq in pairs(sequencers) do seq.metro:stop() end
+function sequencersContainer:start()
+  for _, seq in pairs(self.sequencers) do seq:start() end
 end
 
-function sequencersContainer.count()
-  for _, seq in pairs(sequencers) do seq:count()() end
+function sequencersContainer:stop()
+  for _, seq in pairs(self.sequencers) do seq.metro:stop() end
 end
 
-function sequencersContainer.update_rate_mode(mode)
-  sequencers.rate.modVals = rateModes[mode]
+function sequencersContainer:count()
+  for _, seq in pairs(self.sequencers) do seq:count()() end
 end
 
--- todo: this doesnt work?
-function sequencersContainer.bang()
-  for _, seq in pairs(sequencers) do
-    if seq.steps[1].on == 1 then
-      seq.set_fx(seq.modVals[8], seq.valOffset)
-    end
-  end
+function sequencersContainer:update_rate_mode(mode)
+  self.sequencers.rate.modVals = rateModes[mode]
 end
 
 return sequencersContainer
