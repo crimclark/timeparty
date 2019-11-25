@@ -2,7 +2,7 @@
 --
 -- Grid based delay sequencer/interstellar party starter
 --
--- E2 : change sequence
+-- E2 : change sequence/page
 -- E3 : change param
 -- K3 : select param
 -- K2 : freeze
