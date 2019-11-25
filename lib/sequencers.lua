@@ -12,7 +12,7 @@ local function map(tbl, cb)
   return new
 end
 
-local function divide(v) return v/4 end
+local function divide(v) return v/2 end
 local function divide_table(tbl) return map(tbl, divide) end
 
 function calculate_rate(bpm, beatDivision)
@@ -60,7 +60,7 @@ function sequencersContainer:init()
       grid = GRID,
       modVals = {120, 240, 480, 960, 1920, 3840, 7680, 12000},
       set_fx = function(value, shiftAmt)
-        params:set('filter_cutoff', util.clamp(value + shiftAmt * 100, 0, 12000))
+        params:set('filter_cutoff', util.clamp(value + shiftAmt * 100, 0, 20000))
       end,
     },
 
@@ -81,6 +81,7 @@ function sequencersContainer:init()
         local loopLn = state.loop_end - state.loop_start
         local div = loopLn / 8
         local pos = (value * div) - div + state.loop_start
+        print(pos + shiftAmt / 100)
         softcut.position(voice, util.clamp(pos + shiftAmt / 100, state.loop_start, state.loop_end))
       end,
     },
