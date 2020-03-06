@@ -37,7 +37,11 @@ function change_direction(seq, delta)
 end
 
 function shift(seq, delta)
-  seq.valOffset = util.clamp(seq.valOffset + delta, 1, 20)
+  local param = seq.name .. '_' .. 'shift'
+  local val = util.clamp(params:get(param) + delta, 1, 20)
+  params:set(param, val)
+  seq.valOffset = val
+--  seq.valOffset = util.clamp(seq.valOffset + delta, 1, 20)
 end
 
 function create_page(title, seq)
@@ -48,7 +52,10 @@ function create_page(title, seq)
       create_param('Length', function() return seq:length() end, change_length),
       create_param('Div', function() return seq.div end, update_div),
       create_param('Direction', function() return seq.directions[seq.direction] end, change_direction),
-      create_param('Shift', function() return seq.valOffset end, shift),
+      create_param('Shift', function()
+        local param = seq.name .. '_' .. 'shift'
+        return params:get(param)
+      end, shift),
     },
     selectedParam = 1,
   }

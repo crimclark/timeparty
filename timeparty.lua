@@ -55,7 +55,10 @@ local pages = {}
 
 function init()
   init_params()
-  lfo[1].lfo_targets = {'pan'}
+  lfo[1].lfo_targets = {'pan' }
+  for i=2,lfo.number_of_outputs do
+    lfo[i].lfo_targets = {'shift time', 'shift rate', 'freeze', 'reverse'}
+  end
   lfo.init()
   delay.init()
   seqContainer:init()
@@ -116,6 +119,7 @@ function init_params()
   params:set_action("autopan_depth", function(value) lfo[1].depth = value end)
   params:add_control("autopan_freq", "autopan freq", controlspec.new(0.001, 25, "lin", 0.001, 0, ""))
   params:set_action("autopan_freq", function(value) lfo[1].freq = value end)
+  params:add_number('time_shift', 'time shift', 1, 20, 1)
 end
 
 function lfo.process()

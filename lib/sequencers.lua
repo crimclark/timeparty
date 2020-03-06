@@ -37,6 +37,7 @@ function sequencersContainer:init()
         softcut.loop_end(voice, state.loop_end)
       end,
       visible = true,
+      name = 'time'
     },
 
     rate = FXSequencer.new{
@@ -46,6 +47,7 @@ function sequencersContainer:init()
         local rate = calculate_rate(params:get('bpm'), value * shiftAmt)
         params:set('rate', math.min(rate, 65))
       end,
+      name = 'rate'
     },
 
     feedback = FXSequencer.new{
@@ -54,6 +56,7 @@ function sequencersContainer:init()
       set_fx = function(value, shiftAmt)
         softcut.pre_level(voice, util.clamp(value + shiftAmt / 100, 0, 1))
       end,
+      name = 'feedback'
     },
 
     cutoff = FXSequencer.new{
@@ -62,6 +65,7 @@ function sequencersContainer:init()
       set_fx = function(value, shiftAmt)
         params:set('filter_cutoff', util.clamp(value + shiftAmt * 100, 0, 20000))
       end,
+      name = 'cutoff'
     },
 
     pan = FXSequencer.new{
@@ -71,6 +75,7 @@ function sequencersContainer:init()
         local freq =  value * ((shiftAmt * 2))  * (params:get('bpm') / 120)
         params:set('autopan_freq', freq)
       end,
+      name = 'pan'
     },
 
     position = FXSequencer.new{
@@ -81,9 +86,9 @@ function sequencersContainer:init()
         local loopLn = state.loop_end - state.loop_start
         local div = loopLn / 8
         local pos = (value * div) - div + state.loop_start
-        print(pos + shiftAmt / 100)
         softcut.position(voice, util.clamp(pos + shiftAmt / 100, state.loop_start, state.loop_end))
       end,
+      name = 'position'
     },
 
     reverb = FXSequencer.new{
@@ -92,6 +97,7 @@ function sequencersContainer:init()
       set_fx = function(value, shiftAmt)
         audio.level_cut_rev(util.clamp(util.dbamp(value + shiftAmt), -50, 7))
       end,
+      name = 'reverb'
     },
   }
 end

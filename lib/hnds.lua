@@ -6,11 +6,10 @@
 --
 -- v0.3 @justmat
 
-local number_of_outputs = 1
-
 local tau = math.pi * 2
 
 local lfo = {}
+lfo.number_of_outputs = 5
 
 lfo.options = {
   lfotypes = {
@@ -19,7 +18,7 @@ lfo.options = {
   }
 }
 
-for i = 1, number_of_outputs do
+for i = 1, lfo.number_of_outputs do
   lfo[i] = {
     freq = 0.01,
     counter = 1,
@@ -31,7 +30,7 @@ for i = 1, number_of_outputs do
 end
 
 -- redefine in user script ---------
-for i = 1, number_of_outputs do
+for i = 1, lfo.number_of_outputs do
   lfo[i].lfo_targets = {"none"}
 end
 
@@ -64,33 +63,32 @@ local function make_square(n)
   return make_sine(n) >= 0 and 1 or -1
 end
 
-
 function lfo.init()
-  for i = 1, number_of_outputs do
---    params:add_separator()
-    -- modulation destination
---    params:add_option(i .. "lfo_target", i .. " lfo target", lfo[i].lfo_targets, 1)
-    -- lfo shape
---    params:add_option(i .. "lfo_shape", i .. " lfo shape", lfo.options.lfotypes, 1)
---    params:set_action(i .. "lfo_shape", function(value) lfo[i].waveform = lfo.options.lfotypes[value] end)
-    -- lfo depth
---    params:add_number(i .. "lfo_depth", i .. " lfo depth", 0, 100, 100)
---    params:set_action(i .. "lfo_depth", function(value) lfo[i].depth = value end)
-    -- lfo offset
---    params:add_control(i .."offset", i .. " offset", controlspec.new(-4.0, 3.0, "lin", 0.1, 0.0, ""))
---    params:set_action(i .. "offset", function(value) lfo[i].offset = value end)
+  for i = 2, lfo.number_of_outputs do
+    params:add_separator()
+--     modulation destination
+    params:add_option(i .. "lfo_target", i .. " lfo target", lfo[i].lfo_targets, 1)
+--     lfo shape
+    params:add_option(i .. "lfo_shape", i .. " lfo shape", lfo.options.lfotypes, 1)
+    params:set_action(i .. "lfo_shape", function(value) lfo[i].waveform = lfo.options.lfotypes[value] end)
+--     lfo depth
+    params:add_number(i .. "lfo_depth", i .. " lfo depth", 0, 100, 100)
+    params:set_action(i .. "lfo_depth", function(value) lfo[i].depth = value end)
+--     lfo offset
+    params:add_control(i .."offset", i .. " offset", controlspec.new(-4.0, 3.0, "lin", 0.1, 0.0, ""))
+    params:set_action(i .. "offset", function(value) lfo[i].offset = value end)
 --     lfo speed
---    params:add_control(i .. "lfo_freq", i .. " lfo freq", controlspec.new(0.01, 25.0, "lin", 0.1, 0.05, ""))
---    params:set_action(i .. "lfo_freq", function(value) lfo[i].freq = value end)
-    -- lfo on/off
---    params:add_option(i .. "lfo", i .. " lfo", {"off", "on"}, 1)
+    params:add_control(i .. "lfo_freq", i .. " lfo freq", controlspec.new(0.01, 25.0, "lin", 0.1, 0.05, ""))
+    params:set_action(i .. "lfo_freq", function(value) lfo[i].freq = value end)
+--     lfo on/off
+    params:add_option(i .. "lfo", i .. " lfo", {"off", "on"}, 1)
   end
 
   local lfo_metro = metro.init()
   lfo_metro.time = .01
   lfo_metro.count = -1
   lfo_metro.event = function()
-    for i = 1, number_of_outputs do
+    for i = 1, lfo.number_of_outputs do
       local slope
 --      if params:get(i .. "lfo") == 1 then
 --        break

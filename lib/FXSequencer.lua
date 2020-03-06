@@ -10,6 +10,7 @@ function FXSequencer.new(options)
     set_fx = options.set_fx,
     visible = options.visible or false,
     inactive = options.inactive or false,
+    name = options.name,
     direction = 1,
     lengthOffset = 0,
     valOffset = 1,
