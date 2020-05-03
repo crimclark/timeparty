@@ -43,7 +43,7 @@ function sequencersContainer:init()
       grid = GRID,
       modVals = rateModes.perfect,
       set_fx = function(value, shiftAmt)
-        local rate = calculate_rate(params:get('bpm'), value * shiftAmt)
+        local rate = calculate_rate(clock.get_tempo(), value * shiftAmt)
         params:set('rate', math.min(rate, 65))
       end,
     },
@@ -68,7 +68,7 @@ function sequencersContainer:init()
       grid = GRID,
       modVals = {8, 4, 2, 1, 0.5, 0.25, 0.125, 0.0625},
       set_fx = function(value, shiftAmt)
-        local freq =  value * ((shiftAmt * 2))  * (params:get('bpm') / 120)
+        local freq =  value * ((shiftAmt * 2))  * (clock.get_tempo() / 120)
         params:set('autopan_freq', freq)
       end,
     },
@@ -96,20 +96,16 @@ function sequencersContainer:init()
   }
 end
 
-function sequencersContainer:update_tempo()
-  for _, seq in pairs(self.sequencers) do seq:update_tempo(params:get('bpm')) end
-end
-
 function sequencersContainer:start()
   for _, seq in pairs(self.sequencers) do seq:start() end
 end
 
 function sequencersContainer:stop()
-  for _, seq in pairs(self.sequencers) do seq.metro:stop() end
+  for _, seq in pairs(self.sequencers) do seq:stop() end
 end
 
 function sequencersContainer:count()
-  for _, seq in pairs(self.sequencers) do seq:count()() end
+  for _, seq in pairs(self.sequencers) do seq:count() end
 end
 
 function sequencersContainer:update_rate_mode(mode)

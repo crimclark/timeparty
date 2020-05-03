@@ -3,6 +3,15 @@ FXSequencer.__index = FXSequencer
 
 local buttonLevels = { BRIGHT = 14, MEDIUM = 8, LOW_MED = 5, DIM = 3 }
 
+function pulse(seq)
+  while true do
+    clock.sync(1 * seq.div)
+    if seq.running then
+      seq:count()
+    end
+  end
+end
+
 function FXSequencer.new(options)
   local seq = {
     grid = options.grid,
@@ -14,26 +23,29 @@ function FXSequencer.new(options)
     lengthOffset = 0,
     valOffset = 1,
     div = 1,
-    divCount = 1,
     steps = {},
     queuedSteps = {},
     positionX = 1,
     activeY = 8,
     prevPositionX = 1,
-    metro = metro.init(),
     held = {x = 0, y = 0},
     directions = {'forward', 'reverse', 'pendulum', 'random', 'drunk'},
+    running = false
   }
   setmetatable(seq, FXSequencer)
   setmetatable(seq, {__index = FXSequencer})
   seq:init_steps()
-  seq.metro.event = seq:count()
+  clock.run(pulse, seq)
+
   return seq
 end
 
 function FXSequencer:start()
-  self:update_tempo(params:get('bpm'))
-  self.metro:start()
+  self.running = true
+end
+
+function FXSequencer:stop()
+  self.running = false
 end
 
 function FXSequencer:init()
@@ -58,10 +70,6 @@ function FXSequencer:init()
   end
 end
 
-function FXSequencer:update_tempo(bpm)
-  self.metro.time = 60 / bpm
-end
-
 function FXSequencer:set_length_offset(delta)
   self.lengthOffset = util.clamp(self.lengthOffset - delta, 0, self.grid.cols - 1)
 end
@@ -71,20 +79,15 @@ function FXSequencer:length()
 end
 
 function FXSequencer:count()
-  return function()
-    if self.grid.cols > 0 then
-      self.divCount = self.divCount % self.div + 1
-      if self.divCount == 1 then
-        local pos = self.positionX
-        self.positionX = self:get_next_step(pos)
-        self.prevPositionX = pos
-        local step = self.steps[self.positionX]
-        if step ~= nil and step.on == 1 then
-          self.set_fx(self.modVals[step.y], self.valOffset)
-        end
-        self:redraw()
-      end
+  if self.grid.cols > 0 then
+    local pos = self.positionX
+    self.positionX = self:get_next_step(pos)
+    self.prevPositionX = pos
+    local step = self.steps[self.positionX]
+    if step ~= nil and step.on == 1 then
+      self.set_fx(self.modVals[step.y], self.valOffset)
     end
+    self:redraw()
   end
 end
 
