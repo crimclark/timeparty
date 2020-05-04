@@ -34,10 +34,5 @@ It can be fun to play with after freezing the buffer, or for more glitchy delay 
 Crow inputs 1 and 2 are configurable via the parameters menu. Both accept triggers to toggle freezing or reversing the buffer. 
 
 Input 2 can be set to "trigger step," which will cause the sequencer to advance steps on each incoming pulse. This will override your 
-global clock source if it is set to "crow." Global clock will still sync the delay time, but will no longer advance the sequencer.  
-This behavior enables you to advance the sequencer with an irregular clock, while still tempo syncing your delay to a master tempo. 
-
-**If input 1 is set to "clock" and input 2 is not set to "sync", input 1 will also act as a sync.** 
-
-
-
+global clock source if it is set to "crow." Global clock will still sync the delay time, but will no longer advance the sequencer. This 
+behavior enables you to advance the sequencer with an irregular clock, while still tempo syncing your delay to a master tempo. 
