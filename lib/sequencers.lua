@@ -1,5 +1,6 @@
 local FXSequencer = include('timeparty/lib/FXSequencer')
 local MusicUtil = require 'musicutil'
+local grid = util.file_exists(_path.code.."midigrid") and include "midigrid/lib/mg_128" or grid
 local GRID = grid.connect()
 
 local voice = 1
